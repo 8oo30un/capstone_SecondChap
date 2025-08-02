@@ -1,42 +1,55 @@
 "use client";
-
 import { useEffect, useState } from "react";
+import Image from "next/image"; // ✅ Next.js 이미지 컴포넌트
 
-type TrackInfo = {
+// ✅ 타입 정의 (Spotify Album)
+type Album = {
+  id: string;
   name: string;
-  artist: {
-    name: string;
-  };
-  album?: {
-    title?: string;
-    image?: { "#text": string; size: string }[];
-  };
-  playcount?: string;
-  listeners?: string;
+  release_date: string;
+  images: { url: string; width: number; height: number }[];
+  external_urls: { spotify: string };
+  artists: { name: string }[];
 };
 
 export default function HomePage() {
-  const [trackInfo, setTrackInfo] = useState<TrackInfo | null>(null);
+  const [albums, setAlbums] = useState<Album[]>([]); // ✅ 명확한 타입 지정
 
   useEffect(() => {
-    const fetchTrack = async () => {
-      const res = await fetch("/api/lastfm?artist=IU&track=Love+Wins");
-      const data = await res.json();
-      setTrackInfo(data);
-    };
-    fetchTrack();
+    fetch("/api/spotify/new-releases")
+      .then((res) => res.json())
+      .then((data) => setAlbums(data.albums?.items || []));
   }, []);
 
   return (
     <main className="p-4">
-      <h1 className="text-xl font-bold">🎧 Last.fm 트랙 정보</h1>
-      {trackInfo ? (
-        <pre className="mt-4 bg-gray-100 p-2 rounded text-sm">
-          {JSON.stringify(trackInfo, null, 2)}
-        </pre>
-      ) : (
-        <p className="text-gray-600">로딩 중...</p>
-      )}
+      <h1 className="text-xl font-bold mb-4">🎧 최신 발매 앨범</h1>
+      <ul>
+        {albums.map((album) => (
+          <li key={album.id} className="mb-6">
+            {/* ✅ next/image 사용 */}
+            <Image
+              src={album.images?.[0]?.url}
+              alt={album.name}
+              width={200}
+              height={200}
+              className="rounded"
+            />
+            <p className="font-semibold mt-2">{album.name}</p>
+            <p className="text-sm text-gray-600">
+              {album.artists.map((a) => a.name).join(", ")}
+            </p>
+            <a
+              href={album.external_urls.spotify}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 text-sm"
+            >
+              Spotify에서 보기 →
+            </a>
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }
