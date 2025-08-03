@@ -30,7 +30,7 @@ export async function GET() {
 
     // Step 2: New Releases 요청
     const apiRes = await fetch(
-      "https://api.spotify.com/v1/browse/new-releases?limit=20",
+      "https://api.spotify.com/v1/browse/new-releases?limit=100&country=KR",
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
