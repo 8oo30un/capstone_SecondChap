@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 const AuthButton = dynamic(() => import("./components/AuthButton"), {
   ssr: false,
 });
@@ -16,6 +17,8 @@ type Album = {
 };
 
 export default function HomePage() {
+  const { data: session, status } = useSession();
+
   const [albums, setAlbums] = useState<Album[]>([]);
   const [country, setCountry] = useState("KR");
   const [genre, setGenre] = useState("");
@@ -41,10 +44,26 @@ export default function HomePage() {
       .then((data) => setAlbums(data.albums || []));
   }, [country, genre, debouncedQuery]);
 
+  const isLoading = status === "loading";
+  const isUnauthenticated = !session;
+
+  if (isLoading) {
+    return <p>로딩 중...</p>;
+  }
+
+  if (isUnauthenticated) {
+    return (
+      <main className="p-4 max-w-3xl mx-auto text-center">
+        <h2 className="text-xl font-bold mb-4">로그인이 필요합니다</h2>
+        <AuthButton />
+      </main>
+    );
+  }
+
   return (
     <main className="p-4 max-w-3xl mx-auto">
       <AuthButton />
-      <h1 className="text-xl font-bold mb-4">🎧 Spotify 신곡 및 검색</h1>
+      <h1 className="text-xl font-bold mb-4">🎧 신곡 및 검색</h1>
 
       <div className="mb-4 flex flex-wrap gap-4 items-center">
         <label>
