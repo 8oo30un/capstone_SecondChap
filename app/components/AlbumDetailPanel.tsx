@@ -12,7 +12,7 @@ interface AlbumDetail {
   name: string;
   release_date: string;
   images: { url: string }[];
-  artists: { name: string }[];
+  artists: { name: string; image?: string }[];
   tracks?: {
     items: Track[];
   };
@@ -35,7 +35,17 @@ export default function AlbumDetailPanel({
 
     fetch(`/api/spotify/album?id=${album.id}`)
       .then((res) => res.json())
-      .then((data) => setAlbumData(data));
+      .then((data) => {
+        // Merge artist images from original album prop
+        const enrichedArtists = data.artists.map((artist: { name: string }) => {
+          const original = album.artists.find((a) => a.name === artist.name);
+          return {
+            ...artist,
+            image: original?.image,
+          };
+        });
+        setAlbumData({ ...data, artists: enrichedArtists });
+      });
   }, [album]);
 
   if (!album) return null;
@@ -66,9 +76,24 @@ export default function AlbumDetailPanel({
           <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             {albumData.name}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-            {albumData.artists.map((a) => a.name).join(", ")}
-          </p>
+          <div className="flex flex-col gap-2 mb-4">
+            {albumData.artists.map((artist) => (
+              <div key={artist.name} className="flex items-center gap-3">
+                {artist.image ? (
+                  <img
+                    src={artist.image}
+                    alt={artist.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-300" />
+                )}
+                <span className="text-sm text-gray-800 dark:text-gray-100">
+                  {artist.name}
+                </span>
+              </div>
+            ))}
+          </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
             발매일: {albumData.release_date}
           </p>

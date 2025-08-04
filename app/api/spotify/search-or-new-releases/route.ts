@@ -1,11 +1,23 @@
-// app/api/spotify/search-or-new-releases/route.ts
 import { NextResponse } from "next/server";
 import { getSpotifyAccessToken, getArtistGenres } from "@/lib/spotify";
 
 interface SpotifyAlbum {
   id: string;
-  artists: { id: string }[];
+  artists: { id: string; name: string }[];
   [key: string]: unknown;
+}
+
+// 아티스트 프로필 이미지 가져오는 함수
+async function getArtistImage(
+  artistId: string,
+  accessToken: string
+): Promise<string> {
+  const res = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) return "";
+  const data = await res.json();
+  return data.images?.[0]?.url || "";
 }
 
 export async function GET(req: Request) {
@@ -62,7 +74,22 @@ export async function GET(req: Request) {
       albums = filtered.filter((a): a is SpotifyAlbum => a !== null);
     }
 
-    return NextResponse.json({ albums });
+    // 아티스트 프로필 이미지 한 번만 fetch (중복 제거)
+    const artistMap = new Map<
+      string,
+      { id: string; name: string; image: string }
+    >();
+    for (const album of albums) {
+      for (const artist of album.artists) {
+        if (!artistMap.has(artist.id)) {
+          const image = await getArtistImage(artist.id, accessToken);
+          artistMap.set(artist.id, { id: artist.id, name: artist.name, image });
+        }
+      }
+    }
+    const artistsWithImages = Array.from(artistMap.values());
+
+    return NextResponse.json({ albums, artists: artistsWithImages });
   } catch (err) {
     console.error("Spotify search error:", err);
     return NextResponse.json(

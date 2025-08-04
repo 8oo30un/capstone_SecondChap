@@ -35,3 +35,17 @@ export async function getArtistGenres(
   const data = await res.json();
   return data.genres || [];
 }
+
+export async function fetchArtistImage(
+  artistId: string,
+  accessToken: string
+): Promise<string> {
+  const res = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  if (!res.ok) return "";
+  const data = await res.json();
+  return data.images?.[0]?.url || "";
+}
