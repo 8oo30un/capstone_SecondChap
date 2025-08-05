@@ -151,9 +151,11 @@ export default function HomePage() {
                         const matchedArtist = artists.find(
                           (a) => a.id === art.id
                         );
+                        const image = matchedArtist?.image || "";
+                        console.log("[DEBUG] Artist image:", image); // 👈 이미지 확인
                         return {
                           ...art,
-                          image: matchedArtist?.image || "",
+                          image,
                         };
                       }),
                     };

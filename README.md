@@ -24,7 +24,11 @@
 
 \*\* 사용자가 검색창에 입력할때마다 바로 API호출하면, 너무 많은 요청 생겨 서버 부담/ 지연해서 실제 검색어 API 요청 반영
 
+## React-Query
+
 # my new song dashboard
+
+[Live Demo](https://secondchap.vercel.app/)
 
 ## introduction
 
@@ -49,6 +53,49 @@ if you want to find new song, you can see your favorite artist's album easily an
 
 done: Login, route API, SEO-friendly
 
-to do: Design, favorite function
+to do: Design, favorite function, filtering
 
-##question:
+## question:
+
+    1. What additional features could I implement to make this project more challenging and improve my skills?
+    - component libarary, implementubg drag and ddrop ordering to your favirutes  , try to figuure out goood patttern for using ssr.
+
+
+    Things you can do to make this project more difficult.
+
+1. Try using component libraries if you haven't already.
+2. Try adding Drag and Drop ordering to your favorites pages.
+3. Try figure a good pattern for using server side rendered pages - maybe just the main page on first load.
+
+   2. Are there any security aspects you would recommend me to study more deeply?
+
+   - RBAC: Role based access control (Artist vs Listener users)
+     Secrets Manager
+
+https://aws.amazon.com/secrets-manager/
+
+    3. What testing strategies would you recommend for this kind of project to ensure code quality and reliability?
+
+- testing,
+
+1. unit testing - compoenents make sure contunue to work
+2. end testing - flowes throught that act
+
+Unit testing: tests your components
+End to end (or integration) testing: tests your flows through the app
+
+Playwright for end to end: https://playwright.dev/
+
+    Start with unit tests. Then try out end to end tests
+
+    4. Are there any popular libraries or tools you’d recommend for enhanced security or UX?
+
+ux - i use mantine - compoenet library
+https://mantine.dev/
+https://dndkit.com/
+
+    5. How have you approached learning frontend development? Are there any experiences or resources you would recommend?
+
+- gettingn good reading documentation
+  ai for test
+  youtube

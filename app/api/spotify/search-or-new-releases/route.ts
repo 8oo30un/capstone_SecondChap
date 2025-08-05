@@ -15,7 +15,10 @@ async function getArtistImage(
   const res = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  if (!res.ok) return "";
+  if (!res.ok) {
+    console.warn("Failed to fetch artist image:", artistId, res.statusText);
+    return "";
+  }
   const data = await res.json();
   return data.images?.[0]?.url || "";
 }
@@ -66,6 +69,11 @@ export async function GET(req: Request) {
       albums = data.albums?.items || [];
     }
 
+    console.log(
+      "Fetched albums:",
+      albums.map((a) => a.name)
+    );
+
     // 장르 필터링
     if (genreFilter) {
       const filtered = await Promise.all(
@@ -98,6 +106,8 @@ export async function GET(req: Request) {
       }
     }
     const artistsWithImages = Array.from(artistMap.values());
+
+    console.log("Artists with images:", artistsWithImages);
 
     return NextResponse.json({ albums, artists: artistsWithImages, country });
   } catch (err) {
