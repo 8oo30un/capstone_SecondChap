@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Skeleton from "@/app/components/Skeleton";
 
 interface Track {
   id: string;
@@ -113,9 +114,7 @@ export default function AlbumDetailPanel({
           </ul>
         </div>
       ) : (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          불러오는 중...
-        </p>
+        <Skeleton variant="albumDetail" count={1} />
       )}
     </aside>
   );

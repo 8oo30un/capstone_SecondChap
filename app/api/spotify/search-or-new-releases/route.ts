@@ -38,12 +38,17 @@ export async function GET(req: Request) {
       const res = await fetch(
         `https://api.spotify.com/v1/search?q=${encodeURIComponent(
           query
-        )}&type=album&limit=40`,
+        )}&type=album&limit=40&market=${country}`,
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       const data = await res.json();
-      if (!res.ok)
-        return NextResponse.json({ error: data }, { status: res.status });
+      if (!res.ok) {
+        console.log("Spotify API error response:", data);
+        return NextResponse.json(
+          { error: data, country },
+          { status: res.status }
+        );
+      }
       albums = data.albums?.items || [];
     } else {
       const res = await fetch(
@@ -51,8 +56,13 @@ export async function GET(req: Request) {
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       const data = await res.json();
-      if (!res.ok)
-        return NextResponse.json({ error: data }, { status: res.status });
+      if (!res.ok) {
+        console.log("Spotify API error response:", data);
+        return NextResponse.json(
+          { error: data, country },
+          { status: res.status }
+        );
+      }
       albums = data.albums?.items || [];
     }
 
@@ -89,7 +99,7 @@ export async function GET(req: Request) {
     }
     const artistsWithImages = Array.from(artistMap.values());
 
-    return NextResponse.json({ albums, artists: artistsWithImages });
+    return NextResponse.json({ albums, artists: artistsWithImages, country });
   } catch (err) {
     console.error("Spotify search error:", err);
     return NextResponse.json(
