@@ -16,6 +16,8 @@
 
 ## difference between .ts and .tsx
 
+\*\* JSX 문법의 사용 여부에 있음
+
 ## Skeleton UI
 
 ## debounced
