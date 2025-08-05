@@ -23,3 +23,32 @@
 ## debounced
 
 \*\* 사용자가 검색창에 입력할때마다 바로 API호출하면, 너무 많은 요청 생겨 서버 부담/ 지연해서 실제 검색어 API 요청 반영
+
+# my new song dashboard
+
+## introduction
+
+if you want to find new song, you can see your favorite artist's album easily and comfortabily. So I consider some functions about such needs.
+
+1. artist keyword -
+   It shows artist who release new songs .clicking this button, we provide the information about artist's new album.
+2. categorized new-released music
+   Information can be categorized by genre, searching and country if user want
+   resources - debounced search
+3. fetching data by spotify API
+   you can use most of data by spotify API. it provides releated image and information of Album what you pick.
+   resources - spotify api
+4. Login
+   If you want to this site, you must sign in by your google email. Not only you can enroll your favorite artists, but also see their new-released album.
+   resources - nextAuth, useSession
+5. Skeleton UI
+   Because of fetching lots of data, you can see empty blocks somtimes.
+   So I consider Conditional Rendering such as Skeleton UI, dynamic import and responsive design.
+
+## current progress
+
+done: Login, route API, SEO-friendly
+
+to do: Design, favorite function
+
+##question:
