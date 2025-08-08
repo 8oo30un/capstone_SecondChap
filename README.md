@@ -99,3 +99,11 @@ https://dndkit.com/
 - gettingn good reading documentation
   ai for test
   youtube
+
+## 즐겨찾기 섹션에 Drap and Drop 기능을 구현
+
+## ServerSideRendering을 이용한 페이지 및 컴포넌트 구현
+
+## 컴포넌트 라이브러리를 써보기
+
+## RBAC(Role based access control) 를 이용해 보안적인 사이트 구축
