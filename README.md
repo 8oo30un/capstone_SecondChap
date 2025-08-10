@@ -100,7 +100,7 @@ https://dndkit.com/
   ai for test
   youtube
 
-## 즐겨찾기 섹션에 Drap and Drop 기능을 구현
+## 즐겨찾기 섹션에 Drap and Drop 기능을 구현.
 
 ## ServerSideRendering을 이용한 페이지 및 컴포넌트 구현
 
