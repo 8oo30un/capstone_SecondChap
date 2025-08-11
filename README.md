@@ -102,7 +102,7 @@ https://dndkit.com/
 
 ## 즐겨찾기 섹션에 Drap and Drop 기능을 구현.
 
-## ServerSideRendering을 이용한 페이지 및 컴포넌트 구현
+## ServerSideRendering을 이용한 페이지 및 컴포넌트 구현.
 
 ## 컴포넌트 라이브러리를 써보기
 
