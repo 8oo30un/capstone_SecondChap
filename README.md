@@ -14,6 +14,8 @@
 
 \*\* 클라이언트 컴포넌트에서 로그인 상태를 확인하는 훅
 
+## useCallback
+
 ## difference between .ts and .tsx
 
 \*\* JSX 문법의 사용 여부에 있음

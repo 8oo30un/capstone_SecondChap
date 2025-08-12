@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import AlbumDetailPanel from "./components/AlbumDetailPanel";
 import dynamic from "next/dynamic";
 import Skeleton from "./components/Skeleton";
+import { FavoriteDropZone, DropItem } from "./components/FavoriteDropZone";
 
 const AuthButton = dynamic(() => import("./components/AuthButton"), {
   ssr: false,
@@ -36,6 +37,25 @@ export default function HomePage() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState<DropItem[]>([]);
+
+  const handleDropItem = useCallback((item: DropItem) => {
+    console.log("handleDropItem called with item:", item);
+    setFavorites((prev) => {
+      if (prev.find((fav) => fav.id === item.id)) {
+        console.log("Item already in favorites:", item);
+        return prev; // 상태 변경 없음 → useEffect 미실행
+      }
+      const newFavs = [...prev, item];
+      console.log("New favorites array:", newFavs);
+      return newFavs; // 상태 변경 발생 → useEffect 실행
+    });
+  }, []);
+
+  // 추가로 favorites 변화 감지 로그
+  useEffect(() => {
+    console.log("Favorites state updated:", favorites);
+  }, [favorites]);
 
   // 디바운스 처리
   useEffect(() => {
@@ -84,6 +104,11 @@ export default function HomePage() {
           <AuthButton />
         </div>
 
+        <FavoriteDropZone
+          favorites={favorites} // favorites 상태 넘김
+          setFavorites={setFavorites} // setFavorites 함수도 넘김
+          onDropItem={handleDropItem}
+        />
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           <div>
             <label className="text-sm font-medium text-gray-700 mb-1">
@@ -140,6 +165,17 @@ export default function HomePage() {
             {artists.map((artist) => (
               <button
                 key={artist.id}
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData(
+                    "application/json",
+                    JSON.stringify({
+                      id: artist.id,
+                      name: artist.name,
+                      image: artist.image,
+                    })
+                  );
+                }}
                 onClick={() => {
                   const album = albums.find((album) =>
                     album.artists.some((a) => a.id === artist.id)
@@ -186,6 +222,23 @@ export default function HomePage() {
             {albums.map((album) => (
               <div
                 key={album.id}
+                draggable
+                onDragStart={(e) => {
+                  const firstArtist = album.artists[0];
+                  if (firstArtist) {
+                    const matchedArtist = artists.find(
+                      (a) => a.id === firstArtist.id
+                    );
+                    e.dataTransfer.setData(
+                      "application/json",
+                      JSON.stringify({
+                        id: firstArtist.id,
+                        name: firstArtist.name,
+                        image: matchedArtist?.image || "",
+                      })
+                    );
+                  }
+                }}
                 onClick={() => {
                   const enrichedAlbum = {
                     ...album,
