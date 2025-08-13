@@ -13,6 +13,7 @@ type FavoriteDropZoneProps = {
   onDropItem: (item: DropItem) => void;
   isOpen: boolean;
   onToggle: () => void;
+  onArtistClick?: (artistId: string) => void;
 };
 
 export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
@@ -21,6 +22,7 @@ export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
   onDropItem,
   isOpen,
   onToggle,
+  onArtistClick,
 }) => {
   const [isHovering, setIsHovering] = React.useState(false);
 
@@ -169,11 +171,21 @@ export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
                     className="w-12 h-12 object-cover rounded-md"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
+                    <button
+                      onClick={() =>
+                        item.type === "artist" && onArtistClick?.(item.id)
+                      }
+                      className={`text-sm font-medium text-gray-800 dark:text-gray-200 truncate text-left w-full ${
+                        item.type === "artist"
+                          ? "hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                          : "cursor-default"
+                      }`}
+                      disabled={item.type !== "artist"}
+                    >
                       {item.name}
-                    </p>
+                    </button>
                     <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                      {item.type}
+                      {item.type === "artist" ? "아티스트" : "앨범"}
                     </p>
                   </div>
                   <button

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import AlbumDetailPanel from "./components/AlbumDetailPanel";
+import ArtistDetailPanel from "./components/ArtistDetailPanel";
 import dynamic from "next/dynamic";
 import Skeleton from "./components/Skeleton";
 import { FavoriteDropZone, DropItem } from "./components/FavoriteDropZone";
@@ -36,6 +37,7 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
+  const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<DropItem[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -55,6 +57,11 @@ export default function HomePage() {
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => !prev);
+  }, []);
+
+  const handleArtistClick = useCallback((artistId: string) => {
+    setSelectedArtistId(artistId);
+    setSelectedAlbum(null); // 앨범 상세 패널 닫기
   }, []);
 
   // 추가로 favorites 변화 감지 로그
@@ -103,13 +110,14 @@ export default function HomePage() {
         onDropItem={handleDropItem}
         isOpen={isSidebarOpen}
         onToggle={toggleSidebar}
+        onArtistClick={handleArtistClick}
       />
 
       {/* 메인 콘텐츠 */}
       <main
         className={`flex-1 transition-all duration-300 ${
           isSidebarOpen ? "ml-[320px]" : "ml-0"
-        } ${selectedAlbum ? "pr-[320px]" : "pr-0"}`}
+        } ${selectedAlbum || selectedArtistId ? "pr-[320px]" : "pr-0"}`}
       >
         {/* 필터 UI */}
         <div className="flex justify-between items-center mb-6 p-6">
@@ -268,6 +276,7 @@ export default function HomePage() {
                       }),
                     };
                     setSelectedAlbum(enrichedAlbum);
+                    setSelectedArtistId(null); // 아티스트 상세 패널 닫기
                   }}
                   className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col cursor-pointer"
                 >
@@ -303,6 +312,11 @@ export default function HomePage() {
       <AlbumDetailPanel
         album={selectedAlbum}
         onClose={() => setSelectedAlbum(null)}
+      />
+
+      <ArtistDetailPanel
+        artistId={selectedArtistId}
+        onClose={() => setSelectedArtistId(null)}
       />
     </div>
   );
