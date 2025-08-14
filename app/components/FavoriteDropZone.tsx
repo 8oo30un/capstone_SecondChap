@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 export type DropItem = {
   id: string;
@@ -69,12 +70,118 @@ export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
 
   console.log("Received favorites prop:", favorites);
 
+  // Move toggle button state and refs to top level
+  const [buttonPos, setButtonPos] = React.useState<{
+    top: number;
+    left: number;
+  }>({ top: 16, left: 16 });
+  const draggingRef = React.useRef(false);
+  const movedRef = React.useRef(false);
+  const posRef = React.useRef(buttonPos);
+  const pointerOffsetRef = React.useRef({ x: 0, y: 0 });
+  const buttonSizeRef = React.useRef({ w: 56, h: 56 });
+
+  React.useEffect(() => {
+    posRef.current = buttonPos;
+  }, [buttonPos]);
+
+  React.useEffect(() => {
+    // 초기 위치 로드
+    try {
+      const saved =
+        typeof window !== "undefined"
+          ? localStorage.getItem("favoriteTogglePos")
+          : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (
+          typeof parsed?.top === "number" &&
+          typeof parsed?.left === "number"
+        ) {
+          setButtonPos({ top: parsed.top, left: parsed.left });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      if (!draggingRef.current) return;
+      movedRef.current = true;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const left = Math.max(
+        8,
+        Math.min(
+          vw - buttonSizeRef.current.w - 8,
+          e.clientX - pointerOffsetRef.current.x
+        )
+      );
+      const top = Math.max(
+        8,
+        Math.min(
+          vh - buttonSizeRef.current.h - 8,
+          e.clientY - pointerOffsetRef.current.y
+        )
+      );
+      setButtonPos({ top, left });
+    };
+    const onUp = () => {
+      if (draggingRef.current) {
+        draggingRef.current = false;
+        try {
+          localStorage.setItem(
+            "favoriteTogglePos",
+            JSON.stringify(posRef.current)
+          );
+        } catch {}
+      }
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, []);
+
+  const handlePointerDown: React.PointerEventHandler<HTMLButtonElement> = (
+    e
+  ) => {
+    const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+    buttonSizeRef.current = { w: rect.width, h: rect.height };
+    pointerOffsetRef.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+    draggingRef.current = true;
+    movedRef.current = false;
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    } catch {}
+  };
+
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    // 드래그 후 클릭 발생 방지
+    if (movedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      movedRef.current = false;
+      return;
+    }
+    onToggle();
+  };
+
   return (
     <>
       {/* 사이드바 토글 버튼 */}
       <button
-        onClick={onToggle}
-        className="fixed top-4 left-4 z-50 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+        onPointerDown={handlePointerDown}
+        onClick={handleClick}
+        style={{ top: buttonPos.top, left: buttonPos.left }}
+        className="fixed z-50 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 cursor-move"
         aria-label="즐겨찾기 사이드바 토글"
       >
         <svg
@@ -165,11 +272,17 @@ export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
                   key={item.id}
                   className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm"
                 >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-12 h-12 object-cover rounded-md"
-                  />
+                  {item.image ? (
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={48}
+                      height={48}
+                      className="w-12 h-12 object-cover rounded-md"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-md bg-gray-200 dark:bg-gray-700" />
+                  )}
                   <div className="flex-1 min-w-0">
                     <button
                       onClick={() =>
