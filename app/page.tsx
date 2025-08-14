@@ -35,10 +35,11 @@ export default function HomePage() {
   const [country, setCountry] = useState("KR");
   const [genre, setGenre] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<DropItem[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -107,16 +108,27 @@ export default function HomePage() {
     console.log("Favorites state updated:", favorites);
   }, [favorites]);
 
-  // 디바운스 처리
+  // 디바운스 처리 (강화: 1200ms + 한글 조합 중에는 대기)
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedQuery(searchQuery), 500);
+    if (isComposing) return;
+    const handler = setTimeout(() => setDebouncedQuery(searchQuery), 1200);
     return () => clearTimeout(handler);
-  }, [searchQuery]);
+  }, [searchQuery, isComposing]);
 
   // albums, artists fetch
   useEffect(() => {
+    // 개발 모드 StrictMode로 인한 최초 중복 실행 방지
+    type SkipRef = { current: boolean };
+    const homeAny = HomePage as unknown as { __skipFirstFetchRef?: SkipRef };
+    const skipRef: SkipRef =
+      homeAny.__skipFirstFetchRef ||
+      (homeAny.__skipFirstFetchRef = { current: false });
+    if (process.env.NODE_ENV !== "production" && !skipRef.current) {
+      skipRef.current = true;
+      return;
+    }
+
     const params = new URLSearchParams();
-    if (country) params.set("country", country);
     if (genre) params.set("genre", genre);
     if (debouncedQuery) params.set("query", debouncedQuery);
 
@@ -125,17 +137,74 @@ export default function HomePage() {
       .filter((item) => item.type === "artist")
       .map((item) => item.id);
     if (favoriteArtistIds.length > 0) {
-      params.set("favoriteArtistIds", favoriteArtistIds.join(","));
+      // 로컬 429 완화: 즐겨찾기 ID 전송량 제한
+      params.set("favoriteArtistIds", favoriteArtistIds.slice(0, 10).join(","));
     }
 
+    // 즐겨찾기 없고 검색어도 없으면, 또는 검색어 길이 < 2면 호출 생략
+    if (
+      (!debouncedQuery && favoriteArtistIds.length === 0) ||
+      (debouncedQuery && debouncedQuery.trim().length < 2)
+    ) {
+      setLoading(false);
+      setAlbums([]);
+      setArtists([]);
+      return;
+    }
+
+    // 최소 호출 간격(1.5s) 보장으로 급격한 재요청 억제
+    const homeAny2 = HomePage as unknown as { __lastFetchTs?: number };
+    const nowTs = Date.now();
+    if (homeAny2.__lastFetchTs && nowTs - homeAny2.__lastFetchTs < 1500) {
+      return;
+    }
+    homeAny2.__lastFetchTs = nowTs;
+
+    // 중복 요청 병합 + 이전 요청 취소
+    const inFlight =
+      (HomePage as unknown as { __inFlight?: Map<string, Promise<unknown>> })
+        .__inFlight ||
+      ((
+        HomePage as unknown as { __inFlight?: Map<string, Promise<unknown>> }
+      ).__inFlight = new Map());
+    const abortStore =
+      (HomePage as unknown as { __abort?: AbortController }).__abort ||
+      ((HomePage as unknown as { __abort?: AbortController }).__abort =
+        new AbortController());
+
+    const url = `/api/spotify/search-or-new-releases?${params.toString()}`;
+    if (inFlight.has(url)) {
+      setLoading(true);
+      inFlight
+        .get(url)!
+        .then((data: unknown) => {
+          const typed = data as { albums?: Album[]; artists?: Artist[] };
+          setAlbums(typed.albums || []);
+          setArtists(typed.artists || []);
+        })
+        .finally(() => setLoading(false));
+      return;
+    }
+
+    try {
+      abortStore.abort();
+    } catch {}
+    const controller = new AbortController();
+    (HomePage as unknown as { __abort?: AbortController }).__abort = controller;
+
     setLoading(true);
-    fetch(`/api/spotify/search-or-new-releases?${params.toString()}`)
+    const p = fetch(url, { signal: controller.signal })
       .then((res) => res.json())
-      .then((data) => {
+      .then((data: { albums?: Album[]; artists?: Artist[] }) => {
         setAlbums(data.albums || []);
         setArtists(data.artists || []);
+        return data;
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        inFlight.delete(url);
+      });
+    inFlight.set(url, p);
   }, [country, genre, debouncedQuery, favorites]);
 
   if (status === "loading") return <p>로딩 중...</p>;
@@ -234,6 +303,13 @@ export default function HomePage() {
                 placeholder="아티스트나 노래 제목 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={(e) => {
+                  setIsComposing(false);
+                  // 조합 완료 시 최종 문자열을 안전하게 캡처해 반영
+                  const v = e.currentTarget ? e.currentTarget.value : "";
+                  setSearchQuery(v);
+                }}
               />
             </div>
           </div>
