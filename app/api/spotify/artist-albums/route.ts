@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
     // 아티스트의 앨범 목록 가져오기 (최신순으로 정렬)
     const albumsResponse = await fetch(
-      `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=50&market=KR`,
+      `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=50`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

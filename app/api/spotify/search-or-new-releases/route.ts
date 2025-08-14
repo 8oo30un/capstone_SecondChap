@@ -356,7 +356,7 @@ export async function GET(req: Request) {
       const res = await fetch(
         `https://api.spotify.com/v1/search?q=${encodeURIComponent(
           query
-        )}&type=album,artist&limit=50&market=${countrySettings.market}`,
+        )}&type=album,artist&limit=50`,
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       const data = await res.json();
@@ -394,7 +394,7 @@ export async function GET(req: Request) {
         for (const artistId of favoriteIds) {
           try {
             const artistAlbumsRes = await fetch(
-              `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=20&market=${countrySettings.market}`,
+              `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=20`,
               { headers: { Authorization: `Bearer ${accessToken}` } }
             );
             if (artistAlbumsRes.ok) {
@@ -418,7 +418,7 @@ export async function GET(req: Request) {
       } else {
         // 즐겨찾기된 아티스트가 없는 경우 기본 신곡 발매
         const newReleasesRes = await fetch(
-          `https://api.spotify.com/v1/browse/new-releases?country=${countrySettings.market}&limit=50`,
+          `https://api.spotify.com/v1/browse/new-releases?limit=50`,
           { headers: { Authorization: `Bearer ${accessToken}` } }
         );
         if (newReleasesRes.ok) {
