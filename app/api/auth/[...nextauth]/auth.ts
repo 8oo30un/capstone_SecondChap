@@ -43,7 +43,16 @@ export const authOptions: NextAuthOptions = {
     },
     async redirect({ url, baseUrl }) {
       console.log("Redirect callback - url:", url, "baseUrl:", baseUrl);
-      // 로컬에서는 localhost, 배포에서는 실제 도메인 사용
+      
+      // 프로덕션에서는 기본 도메인 강제 사용
+      if (process.env.NODE_ENV === "production") {
+        const productionBaseUrl = "https://secondchap.vercel.app";
+        if (url.startsWith("/")) return `${productionBaseUrl}${url}`;
+        else if (new URL(url).origin === productionBaseUrl) return url;
+        return productionBaseUrl;
+      }
+      
+      // 로컬에서는 localhost 사용
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
