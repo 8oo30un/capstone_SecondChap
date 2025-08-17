@@ -19,13 +19,13 @@ export const authOptions: NextAuthOptions = {
   },
   debug: process.env.NODE_ENV === "development",
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user }) {
       if (user) {
         console.log("SignIn callback - user:", user);
       }
       return true;
     },
-    async jwt({ token, user, account, profile, trigger }) {
+    async jwt({ token, user }) {
       console.log("JWT callback - token:", token, "user:", user);
       if (user) {
         token.userId = user.id;
@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({ session, token, user }) {
+    async session({ session, token }) {
       console.log("Session callback - session:", session, "token:", token);
       if (session.user && token.userId) {
         session.user.id = token.userId as string;
