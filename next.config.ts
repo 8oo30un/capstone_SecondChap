@@ -3,7 +3,7 @@ const nextConfig = {
     LASTFM_API_KEY: process.env.LASTFM_API_KEY,
   },
   images: {
-    domains: ["i.scdn.co"],
+    domains: ["i.scdn.co", "lh3.googleusercontent.com"],
   },
   reactStrictMode: false,
 };

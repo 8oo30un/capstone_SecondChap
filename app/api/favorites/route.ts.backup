@@ -1,0 +1,157 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+
+import { PrismaClient } from "@prisma/client";
+
+
+
+
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+  ],
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "jwt" as const,
+  },
+  callbacks: {
+    async jwt({ token, user }: { token: any; user: any }) {
+      if (user) {
+        token.userId = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }: { session: any; token: any }) {
+      if (session.user && token.userId) {
+        session.user.id = token.userId as string;
+      }
+      return session;
+    },
+  },
+};
+
+// 즐겨찾기 조회
+export async function GET() {
+  console.log("GET /api/favorites called");
+  try {
+    const session = await getServerSession();
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "로그인이 필요합니다." },
+        { status: 401 }
+      );
+    }
+
+    const favorites = await prisma.favorite.findMany({
+      where: {
+        userId: session.user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return NextResponse.json(favorites);
+  } catch (error) {
+    console.error("즐겨찾기 조회 오류:", error);
+    return NextResponse.json(
+      { error: "즐겨찾기 조회에 실패했습니다." },
+      { status: 500 }
+    );
+  }
+}
+
+// 즐겨찾기 추가
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession();
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "로그인이 필요합니다." },
+        { status: 401 }
+      );
+    }
+
+    const { type, spotifyId, name, image } = await request.json();
+
+    if (!type || !spotifyId || !name) {
+      return NextResponse.json(
+        { error: "필수 정보가 누락되었습니다." },
+        { status: 400 }
+      );
+    }
+
+    const favorite = await prisma.favorite.upsert({
+      where: {
+        userId_spotifyId_type: {
+          userId: session.user.id,
+          spotifyId,
+          type,
+        },
+      },
+      update: {
+        name,
+        image,
+      },
+      create: {
+        userId: session.user.id,
+        type,
+        spotifyId,
+        name,
+        image,
+      },
+    });
+
+    return NextResponse.json(favorite);
+  } catch (error) {
+    console.error("즐겨찾기 추가 오류:", error);
+    return NextResponse.json(
+      { error: "즐겨찾기 추가에 실패했습니다." },
+      { status: 500 }
+    );
+  }
+}
+
+// 즐겨찾기 삭제
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession();
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "로그인이 필요합니다." },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const spotifyId = searchParams.get("spotifyId");
+    const type = searchParams.get("type");
+
+    if (!spotifyId || !type) {
+      return NextResponse.json(
+        { error: "필수 정보가 누락되었습니다." },
+        { status: 400 }
+      );
+    }
+
+    await prisma.favorite.deleteMany({
+      where: {
+        userId: session.user.id,
+        spotifyId,
+        type,
+      },
+    });
+
+    return NextResponse.json({ message: "즐겨찾기가 삭제되었습니다." });
+  } catch (error) {
+    console.error("즐겨찾기 삭제 오류:", error);
+    return NextResponse.json(
+      { error: "즐겨찾기 삭제에 실패했습니다." },
+      { status: 500 }
+    );
+  }
+}
