@@ -18,6 +18,10 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt" as const,
   },
   debug: process.env.NODE_ENV === "development",
+  pages: {
+    signIn: "/auth/signin",
+    error: "/auth/error",
+  },
   callbacks: {
     async signIn({ user }) {
       if (user) {
@@ -43,16 +47,19 @@ export const authOptions: NextAuthOptions = {
     },
     async redirect({ url, baseUrl }) {
       console.log("Redirect callback - url:", url, "baseUrl:", baseUrl);
-      
+
       // 프로덕션에서는 기본 도메인 강제 사용
       if (process.env.NODE_ENV === "production") {
         const productionBaseUrl = "https://secondchap.vercel.app";
+        console.log("🔄 Production redirect - using:", productionBaseUrl);
+
         if (url.startsWith("/")) return `${productionBaseUrl}${url}`;
         else if (new URL(url).origin === productionBaseUrl) return url;
         return productionBaseUrl;
       }
-      
+
       // 로컬에서는 localhost 사용
+      console.log("🔄 Local redirect - using:", baseUrl);
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
