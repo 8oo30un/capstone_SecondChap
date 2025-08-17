@@ -41,5 +41,12 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      console.log("Redirect callback - url:", url, "baseUrl:", baseUrl);
+      // 로컬에서는 localhost, 배포에서는 실제 도메인 사용
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
 };
