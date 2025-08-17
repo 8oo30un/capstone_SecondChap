@@ -18,10 +18,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt" as const,
   },
   debug: process.env.NODE_ENV === "development",
-  pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error",
-  },
+
   callbacks: {
     async signIn({ user }) {
       if (user) {
