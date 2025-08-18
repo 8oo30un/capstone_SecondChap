@@ -18,6 +18,12 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt" as const,
   },
   debug: process.env.NODE_ENV === "development",
+  
+  // NextAuth 페이지 설정 추가
+  pages: {
+    signIn: "/",
+    error: "/",
+  },
 
   callbacks: {
     async signIn({ user }) {
