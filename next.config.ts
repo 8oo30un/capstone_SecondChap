@@ -2,7 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["i.scdn.co", "mosaic.scdn.co", "wrapped-images.spotifycdn.com", "lh3.googleusercontent.com"],
+    domains: [
+      "i.scdn.co",
+      "mosaic.scdn.co",
+      "wrapped-images.spotifycdn.com",
+      "lh3.googleusercontent.com",
+    ],
   },
   env: {
     // 환경변수 로딩 순서 명시

@@ -45,18 +45,14 @@ export const authOptions: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       console.log("Redirect callback - url:", url, "baseUrl:", baseUrl);
 
-      // 프로덕션에서는 현재 요청된 도메인 자동 감지
+      // 프로덕션에서는 항상 기본 도메인 사용
       if (process.env.NODE_ENV === "production") {
-        // 현재 요청된 도메인을 자동으로 감지
-        const currentDomain = baseUrl;
-        console.log(
-          "🔄 Production redirect - auto-detected domain:",
-          currentDomain
-        );
+        const productionUrl = "https://secondchap.vercel.app";
+        console.log("🔄 Production redirect - using:", productionUrl);
 
-        if (url.startsWith("/")) return `${currentDomain}${url}`;
-        else if (new URL(url).origin === currentDomain) return url;
-        return currentDomain;
+        if (url.startsWith("/")) return `${productionUrl}${url}`;
+        else if (new URL(url).origin === productionUrl) return url;
+        return productionUrl;
       }
 
       // 로컬에서는 localhost 사용

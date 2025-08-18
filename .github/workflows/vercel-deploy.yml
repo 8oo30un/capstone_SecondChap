@@ -1,0 +1,43 @@
+name: Vercel Deploy with Auto Alias
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Update Alias
+        run: |
+          # 최신 배포 URL 가져오기
+          LATEST_DEPLOY=$(vercel ls --json | jq -r '.[0].url')
+          echo "Latest deploy: $LATEST_DEPLOY"
+
+          # 기본 도메인에 alias 설정
+          vercel alias $LATEST_DEPLOY secondchap.vercel.app --token ${{ secrets.VERCEL_TOKEN }}
+
+          echo "✅ Alias updated: secondchap.vercel.app -> $LATEST_DEPLOY"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

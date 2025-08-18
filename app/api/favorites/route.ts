@@ -111,9 +111,13 @@ export async function DELETE(request: NextRequest) {
 
     const requestBody = await request.json();
     console.log("📥 DELETE 요청 본문:", requestBody);
-    
+
     const { type, spotifyId } = requestBody;
-    console.log("🔍 추출된 데이터:", { type, spotifyId, userId: session.user.id });
+    console.log("🔍 추출된 데이터:", {
+      type,
+      spotifyId,
+      userId: session.user.id,
+    });
 
     if (!type || !spotifyId) {
       console.log("❌ 필수 정보 누락:", { type, spotifyId });
@@ -140,10 +144,10 @@ export async function DELETE(request: NextRequest) {
     console.log("✅ Prisma 삭제 결과:", deleteResult);
     console.log("🗑️ 삭제된 레코드 수:", deleteResult.count);
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       deletedCount: deleteResult.count,
-      deletedItem: { type, spotifyId, userId: session.user.id }
+      deletedItem: { type, spotifyId, userId: session.user.id },
     });
   } catch (error) {
     console.error("💥 즐겨찾기 삭제 오류:", error);
