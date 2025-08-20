@@ -52,6 +52,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Spotify artist ID 형식 검증 (22자리 영숫자)
+    const spotifyArtistIdRegex = /^[a-zA-Z0-9]{22}$/;
+    if (!spotifyArtistIdRegex.test(artistId)) {
+      console.error("Invalid Spotify artist ID format:", artistId);
+      return NextResponse.json(
+        { error: "Invalid Spotify artist ID format" },
+        { status: 400 }
+      );
+    }
+
     const token = await getSpotifyAccessToken();
     if (!token) {
       return NextResponse.json(
@@ -71,7 +81,16 @@ export async function GET(request: NextRequest) {
     );
 
     if (!albumsResponse.ok) {
-      throw new Error(`Spotify API error: ${albumsResponse.status}`);
+      const errorText = await albumsResponse.text();
+      console.error(`Spotify API error: ${albumsResponse.status}`, {
+        status: albumsResponse.status,
+        statusText: albumsResponse.statusText,
+        error: errorText,
+        artistId: artistId,
+      });
+      throw new Error(
+        `Spotify API error: ${albumsResponse.status} - ${errorText}`
+      );
     }
 
     const albumsData = await albumsResponse.json();

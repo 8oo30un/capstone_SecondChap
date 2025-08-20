@@ -53,7 +53,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { type, spotifyId, name, image } = await request.json();
+    const requestBody = await request.json();
+    console.log("📥 POST 요청 본문:", requestBody);
+
+    const { type, spotifyId, name, image } = requestBody;
+    console.log("🔍 추출된 데이터:", { type, spotifyId, name, image });
 
     if (!type || !spotifyId || !name) {
       return NextResponse.json(
@@ -61,6 +65,21 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    console.log("🗄️ Prisma upsert 쿼리 실행:", {
+      where: {
+        userId: session.user.id,
+        spotifyId,
+        type,
+      },
+      create: {
+        userId: session.user.id,
+        type,
+        spotifyId,
+        name,
+        image,
+      },
+    });
 
     const favorite = await prisma.favorite.upsert({
       where: {
@@ -81,6 +100,14 @@ export async function POST(request: NextRequest) {
         name,
         image,
       },
+    });
+
+    console.log("✅ Prisma upsert 결과:", {
+      id: favorite.id,
+      spotifyId: favorite.spotifyId,
+      type: favorite.type,
+      name: favorite.name,
+      userId: favorite.userId,
     });
 
     return NextResponse.json(favorite);

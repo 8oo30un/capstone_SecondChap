@@ -186,8 +186,42 @@ export default function HomePage() {
         return;
       }
 
+      // artist.id가 내부 ID인지 확인 (25자)
+      if (artist.id.length === 25) {
+        console.error("❌ artist.id가 내부 ID입니다:", {
+          artistId: artist.id,
+          artistIdLength: artist.id.length,
+          artistName: artist.name,
+        });
+        alert("아티스트 정보가 올바르지 않습니다. 검색을 다시 시도해주세요.");
+        return;
+      }
+
+      // artist.id가 Spotify ID인지 확인 (22자)
+      if (artist.id.length !== 22) {
+        console.error("❌ artist.id가 올바르지 않은 형식입니다:", {
+          artistId: artist.id,
+          artistIdLength: artist.id.length,
+          artistName: artist.name,
+        });
+        alert("아티스트 정보가 올바르지 않습니다. 검색을 다시 시도해주세요.");
+        return;
+      }
+
       try {
-        console.log("Adding artist to favorites:", artist);
+        console.log("🎯 Adding artist to favorites:", {
+          artist: artist,
+          artistId: artist.id,
+          artistIdType: typeof artist.id,
+          artistIdLength: artist.id?.length,
+          requestBody: {
+            type: "artist",
+            spotifyId: artist.id,
+            name: artist.name,
+            image: artist.image,
+          },
+        });
+
         const response = await fetch("/api/favorites", {
           method: "POST",
           headers: {
@@ -202,24 +236,51 @@ export default function HomePage() {
         });
 
         console.log("Add artist response status:", response.status);
+        console.log(
+          "Add artist response headers:",
+          Object.fromEntries(response.headers.entries())
+        );
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Add artist response data:", data);
+          console.log("✅ Add artist response data:", {
+            id: data.id,
+            spotifyId: data.spotifyId,
+            type: data.type,
+            name: data.name,
+            userId: data.userId,
+          });
 
           // 데이터베이스에서 최신 데이터 다시 로드
           const refreshResponse = await fetch("/api/favorites");
           if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
+            const refreshData = await response.json();
             if (Array.isArray(refreshData)) {
               setFavorites(refreshData);
               console.log("Favorites refreshed:", refreshData);
             }
           }
         } else {
-          const errorData = await response.json();
-          console.error("Add artist API error:", errorData);
-          alert("즐겨찾기 추가에 실패했습니다.");
+          console.error("Add artist API error - Status:", response.status);
+          console.error(
+            "Add artist API error - StatusText:",
+            response.statusText
+          );
+
+          let errorData;
+          try {
+            errorData = await response.json();
+            console.error("Add artist API error - Response:", errorData);
+          } catch (parseError) {
+            console.error(
+              "Add artist API error - Could not parse response:",
+              parseError
+            );
+            const errorText = await response.text();
+            console.error("Add artist API error - Raw response:", errorText);
+          }
+
+          alert(`즐겨찾기 추가에 실패했습니다. (${response.status})`);
         }
       } catch (error) {
         console.error("아티스트 즐겨찾기 오류:", error);
@@ -236,8 +297,42 @@ export default function HomePage() {
         return;
       }
 
+      // album.id가 내부 ID인지 확인 (25자)
+      if (album.id.length === 25) {
+        console.error("❌ album.id가 내부 ID입니다:", {
+          albumId: album.id,
+          albumIdLength: album.id.length,
+          albumName: album.name,
+        });
+        alert("앨범 정보가 올바르지 않습니다. 검색을 다시 시도해주세요.");
+        return;
+      }
+
+      // album.id가 Spotify ID인지 확인 (22자)
+      if (album.id.length !== 22) {
+        console.error("❌ album.id가 올바르지 않은 형식입니다:", {
+          albumId: album.id,
+          albumIdLength: album.id.length,
+          albumName: album.name,
+        });
+        alert("앨범 정보가 올바르지 않습니다. 검색을 다시 시도해주세요.");
+        return;
+      }
+
       try {
-        console.log("Adding album to favorites:", album);
+        console.log("💿 Adding album to favorites:", {
+          album: album,
+          albumId: album.id,
+          albumIdType: typeof album.id,
+          albumIdLength: album.id?.length,
+          requestBody: {
+            type: "album",
+            spotifyId: album.id,
+            name: album.name,
+            image: album.images[0]?.url || "",
+          },
+        });
+
         const response = await fetch("/api/favorites", {
           method: "POST",
           headers: {
@@ -252,10 +347,20 @@ export default function HomePage() {
         });
 
         console.log("Add album response status:", response.status);
+        console.log(
+          "Add album response headers:",
+          Object.fromEntries(response.headers.entries())
+        );
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Add album response data:", data);
+          console.log("✅ Add album response data:", {
+            id: data.id,
+            spotifyId: data.spotifyId,
+            type: data.type,
+            name: data.name,
+            userId: data.userId,
+          });
 
           // 데이터베이스에서 최신 데이터 다시 로드
           const refreshResponse = await fetch("/api/favorites");
@@ -267,9 +372,26 @@ export default function HomePage() {
             }
           }
         } else {
-          const errorData = await response.json();
-          console.error("Add album API error:", errorData);
-          alert("즐겨찾기 추가에 실패했습니다.");
+          console.error("Add album API error - Status:", response.status);
+          console.error(
+            "Add album API error - StatusText:",
+            response.statusText
+          );
+
+          let errorData;
+          try {
+            errorData = await response.json();
+            console.error("Add album API error - Response:", errorData);
+          } catch (parseError) {
+            console.error(
+              "Add album API error - Could not parse response:",
+              parseError
+            );
+            const errorText = await response.text();
+            console.error("Add album API error - Raw response:", errorText);
+          }
+
+          alert(`즐겨찾기 추가에 실패했습니다. (${response.status})`);
         }
       } catch (error) {
         console.error("앨범 즐겨찾기 오류:", error);
@@ -393,24 +515,8 @@ export default function HomePage() {
             return updated;
           });
 
-          // 백그라운드에서 즐겨찾기 목록 새로고침 (데이터 동기화)
-          console.log("🔄 백그라운드에서 즐겨찾기 목록 새로고침 시작");
-          fetch("/api/favorites")
-            .then((refreshResponse) => {
-              console.log("🔄 새로고침 응답 상태:", refreshResponse.status);
-              return refreshResponse.json();
-            })
-            .then((refreshData) => {
-              console.log("🔄 새로고침 응답 데이터:", refreshData);
-              if (Array.isArray(refreshData)) {
-                console.log("🔄 백그라운드 즐겨찾기 상태 동기화:", refreshData);
-                setFavorites(refreshData);
-                console.log("✅ 백그라운드 즐겨찾기 상태 동기화 완료");
-              }
-            })
-            .catch((error) => {
-              console.error("❌ 백그라운드 새로고침 실패:", error);
-            });
+          // 백그라운드 새로고침 비활성화 - 삭제된 데이터가 다시 로드되는 문제 방지
+          console.log("🚫 백그라운드 새로고침 비활성화됨 - 데이터 일관성 유지");
         } else {
           const errorData = await response.json();
           console.error("❌ 즐겨찾기 제거 API 오류:", errorData);
@@ -433,6 +539,21 @@ export default function HomePage() {
   );
 
   const handleArtistClick = useCallback((artistId: string) => {
+    console.log("🎯 handleArtistClick 호출됨:", {
+      artistId: artistId,
+      artistIdType: typeof artistId,
+      artistIdLength: artistId?.length,
+    });
+
+    // Spotify artist ID 형식 검증 (22자리 영숫자)
+    const spotifyArtistIdRegex = /^[a-zA-Z0-9]{22}$/;
+    if (!spotifyArtistIdRegex.test(artistId)) {
+      console.error("❌ Invalid Spotify artist ID format:", artistId);
+      alert("올바르지 않은 아티스트 ID입니다. 즐겨찾기를 다시 추가해주세요.");
+      return;
+    }
+
+    console.log("✅ Spotify artist ID 검증 통과:", artistId);
     setSelectedArtistId(artistId);
     setSelectedAlbum(null);
   }, []);
@@ -454,16 +575,80 @@ export default function HomePage() {
             const data = await response.json();
             console.log("Favorites data:", data);
             if (Array.isArray(data)) {
+              // 잘못된 형식의 spotifyId를 가진 항목 필터링
+              const validData = data.filter((f) => {
+                if (f.type === "artist") {
+                  const spotifyArtistIdRegex = /^[a-zA-Z0-9]{22}$/;
+                  return spotifyArtistIdRegex.test(f.spotifyId);
+                }
+                return true; // 앨범은 검증하지 않음
+              });
+
+              // 잘못된 데이터가 있다면 데이터베이스에서 자동 제거
+              const invalidData = data.filter((f) => {
+                if (f.type === "artist") {
+                  const spotifyArtistIdRegex = /^[a-zA-Z0-9]{22}$/;
+                  return !spotifyArtistIdRegex.test(f.spotifyId);
+                }
+                return false;
+              });
+
+              if (invalidData.length > 0) {
+                console.log("🚨 잘못된 형식의 데이터 발견:", invalidData);
+                // 잘못된 데이터를 데이터베이스에서 제거
+                const removePromises = invalidData.map(async (invalidItem) => {
+                  try {
+                    const deleteResponse = await fetch(
+                      `/api/favorites?spotifyId=${invalidItem.spotifyId}&type=${invalidItem.type}`,
+                      { method: "DELETE" }
+                    );
+                    if (deleteResponse.ok) {
+                      console.log(
+                        `✅ 잘못된 데이터 제거됨: ${invalidItem.name}`
+                      );
+                      return true;
+                    } else {
+                      console.error(
+                        `❌ 잘못된 데이터 제거 실패: ${invalidItem.name}`
+                      );
+                      return false;
+                    }
+                  } catch (error) {
+                    console.error(
+                      `💥 잘못된 데이터 제거 중 오류: ${invalidItem.name}`,
+                      error
+                    );
+                    return false;
+                  }
+                });
+
+                // 모든 제거 작업 완료 후 UI 업데이트
+                Promise.all(removePromises).then((results) => {
+                  const successCount = results.filter(Boolean).length;
+                  console.log(
+                    `🎉 잘못된 데이터 정리 완료: ${successCount}/${invalidData.length}개 제거됨`
+                  );
+
+                  // 성공적으로 제거된 경우에만 UI 업데이트
+                  if (successCount > 0) {
+                    setFavorites(validData);
+                    console.log("✨ UI 업데이트 완료");
+                  }
+                });
+              } else {
+                // 잘못된 데이터가 없으면 바로 설정
+                setFavorites(validData);
+              }
+
               console.log(
                 "🔍 즐겨찾기 데이터 구조:",
-                data.map((f) => ({
+                validData.map((f) => ({
                   id: f.id,
                   spotifyId: f.spotifyId,
                   type: f.type,
                   name: f.name,
                 }))
               );
-              setFavorites(data);
             }
           } else {
             const errorData = await response.json();
@@ -584,6 +769,130 @@ export default function HomePage() {
 
     loadFavoriteArtistAlbums();
   }, [favorites, searchQuery]);
+
+  const clearInvalidFavorites = useCallback(async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      console.log("🧹 수동 정리 시작...");
+
+      // 모든 즐겨찾기 데이터 가져오기
+      const response = await fetch("/api/favorites");
+      if (response.ok) {
+        const data = await response.json();
+        console.log("📊 현재 즐겨찾기 데이터:", data);
+
+        // 모든 즐겨찾기 데이터를 제거 (강제 정리)
+        const invalidData = data;
+
+        console.log("🚨 발견된 잘못된 데이터:", invalidData);
+
+        if (invalidData.length > 0) {
+          // 잘못된 데이터 모두 제거
+          const removePromises = invalidData.map(
+            async (invalidItem: DropItem) => {
+              try {
+                console.log(
+                  `🗑️ 제거 중: ${invalidItem.name} (${invalidItem.spotifyId})`
+                );
+                const deleteResponse = await fetch(
+                  `/api/favorites?spotifyId=${invalidItem.spotifyId}&type=${invalidItem.type}`,
+                  { method: "DELETE" }
+                );
+                if (deleteResponse.ok) {
+                  console.log(`✅ 제거 성공: ${invalidItem.name}`);
+                  return true;
+                } else {
+                  console.error(
+                    `❌ 제거 실패: ${invalidItem.name} (${deleteResponse.status})`
+                  );
+                  return false;
+                }
+              } catch (error) {
+                console.error(`💥 제거 중 오류: ${invalidItem.name}`, error);
+                return false;
+              }
+            }
+          );
+
+          const results = await Promise.all(removePromises);
+          const successCount = results.filter(Boolean).length;
+
+          console.log(
+            `🎉 수동 정리 완료: ${successCount}/${invalidData.length}개 제거됨`
+          );
+
+          // 즐겨찾기 다시 로드
+          const refreshResponse = await fetch("/api/favorites");
+          if (refreshResponse.ok) {
+            const refreshData = await refreshResponse.json();
+            setFavorites(refreshData);
+            console.log("✨ 즐겨찾기 새로고침 완료");
+          }
+        } else {
+          console.log("✅ 잘못된 데이터가 없습니다.");
+        }
+      }
+    } catch (error) {
+      console.error("💥 즐겨찾기 정리 오류:", error);
+    }
+  }, [session?.user?.id]);
+
+  // 강제로 모든 즐겨찾기 제거하는 함수
+  const forceClearAllFavorites = useCallback(async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      console.log("🧹 강제 정리 시작 - 모든 즐겨찾기 제거...");
+
+      // 현재 즐겨찾기 데이터 가져오기
+      const response = await fetch("/api/favorites");
+      if (response.ok) {
+        const data = await response.json();
+        console.log("📊 제거할 즐겨찾기 데이터:", data);
+
+        if (data.length > 0) {
+          // 모든 즐겨찾기 제거
+          const removePromises = data.map(async (item: DropItem) => {
+            try {
+              console.log(`🗑️ 강제 제거 중: ${item.name} (${item.spotifyId})`);
+              const deleteResponse = await fetch(
+                `/api/favorites?spotifyId=${item.spotifyId}&type=${item.type}`,
+                { method: "DELETE" }
+              );
+              if (deleteResponse.ok) {
+                console.log(`✅ 강제 제거 성공: ${item.name}`);
+                return true;
+              } else {
+                console.error(
+                  `❌ 강제 제거 실패: ${item.name} (${deleteResponse.status})`
+                );
+                return false;
+              }
+            } catch (error) {
+              console.error(`💥 강제 제거 중 오류: ${item.name}`, error);
+              return false;
+            }
+          });
+
+          const results = await Promise.all(removePromises);
+          const successCount = results.filter(Boolean).length;
+
+          console.log(
+            `🎉 강제 정리 완료: ${successCount}/${data.length}개 제거됨`
+          );
+
+          // 즐겨찾기 상태 초기화
+          setFavorites([]);
+          console.log("✨ 즐겨찾기 상태 초기화 완료");
+        } else {
+          console.log("✅ 제거할 즐겨찾기가 없습니다.");
+        }
+      }
+    } catch (error) {
+      console.error("💥 강제 정리 오류:", error);
+    }
+  }, [session?.user?.id]);
 
   if (status === "loading") return <p>로딩 중...</p>;
   if (!session)
@@ -796,13 +1105,33 @@ export default function HomePage() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  console.log("🎯 즐겨찾기 버튼 클릭:", {
+                                    artist: artist,
+                                    favorites: favorites,
+                                    favoritesLength: favorites.length,
+                                  });
+
                                   const isFavorite = favorites.some(
                                     (f) =>
-                                      f.id === artist.id && f.type === "artist"
+                                      f.spotifyId === artist.id &&
+                                      f.type === "artist"
                                   );
+
+                                  console.log("🔍 즐겨찾기 상태 확인:", {
+                                    artistId: artist.id,
+                                    isFavorite: isFavorite,
+                                    matchingFavorites: favorites.filter(
+                                      (f) =>
+                                        f.spotifyId === artist.id &&
+                                        f.type === "artist"
+                                    ),
+                                  });
+
                                   if (isFavorite) {
+                                    console.log("🗑️ 즐겨찾기 제거 실행");
                                     removeFavorite(artist.id, "artist");
                                   } else {
+                                    console.log("❤️ 즐겨찾기 추가 실행");
                                     handleArtistFavorite(artist);
                                   }
                                 }}
@@ -811,7 +1140,8 @@ export default function HomePage() {
                               >
                                 {favorites.some(
                                   (f) =>
-                                    f.id === artist.id && f.type === "artist"
+                                    f.spotifyId === artist.id &&
+                                    f.type === "artist"
                                 ) ? (
                                   <svg
                                     className="w-5 h-5 text-red-500"
@@ -1036,7 +1366,20 @@ export default function HomePage() {
                               })
                             );
                           }}
-                          onClick={() => handleArtistClick(fav.id)}
+                          onClick={() => {
+                            console.log("🎯 즐겨찾기 영역에서 아티스트 클릭:", {
+                              fav: fav,
+                              spotifyId: fav.spotifyId,
+                              id: fav.id,
+                              type: fav.type,
+                              name: fav.name,
+                              spotifyIdType: typeof fav.spotifyId,
+                              spotifyIdLength: fav.spotifyId?.length,
+                              idType: typeof fav.id,
+                              idLength: fav.id?.length,
+                            });
+                            handleArtistClick(fav.spotifyId);
+                          }}
                           className="group relative rounded m-3 overflow-hidden shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                         >
                           {artistImage ? (
@@ -1056,7 +1399,7 @@ export default function HomePage() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              removeFavorite(fav.id, fav.type);
+                              removeFavorite(fav.spotifyId, fav.type);
                             }}
                             className="absolute inset-0 flex items-center justify-center"
                             aria-label="즐겨찾기 토글"
@@ -1110,7 +1453,7 @@ export default function HomePage() {
                                 favorites.some(
                                   (fav) =>
                                     fav.type === "artist" &&
-                                    fav.id === artist.id
+                                    fav.spotifyId === artist.id
                                 )
                             );
 
@@ -1163,7 +1506,7 @@ export default function HomePage() {
                                         className={`w-4 h-4 transition-colors ${
                                           favorites.find(
                                             (fav) =>
-                                              fav.id === album.id &&
+                                              fav.spotifyId === album.id &&
                                               fav.type === "album"
                                           )
                                             ? "text-red-500 fill-current"
@@ -1172,7 +1515,7 @@ export default function HomePage() {
                                         fill={
                                           favorites.find(
                                             (fav) =>
-                                              fav.id === album.id &&
+                                              fav.spotifyId === album.id &&
                                               fav.type === "album"
                                           )
                                             ? "currentColor"
@@ -1231,7 +1574,8 @@ export default function HomePage() {
                                   {album.artists.map((a) => {
                                     const isFavorite = favorites.some(
                                       (fav) =>
-                                        fav.type === "artist" && fav.id === a.id
+                                        fav.type === "artist" &&
+                                        fav.spotifyId === a.id
                                     );
                                     return (
                                       <span
@@ -1290,10 +1634,29 @@ export default function HomePage() {
                           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                             즐겨찾기 앨범
                           </h3>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {favorites.filter((f) => f.type === "album").length}
-                            개 앨범
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={clearInvalidFavorites}
+                              className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition"
+                              title="잘못된 데이터 정리"
+                            >
+                              정리
+                            </button>
+                            <button
+                              onClick={forceClearAllFavorites}
+                              className="px-2 py-1 text-xs bg-red-700 text-white rounded hover:bg-red-800 transition"
+                              title="모든 즐겨찾기 강제 제거"
+                            >
+                              강제 정리
+                            </button>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {
+                                favorites.filter((f) => f.type === "album")
+                                  .length
+                              }
+                              개 앨범
+                            </span>
+                          </div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
                           {favorites
@@ -1322,7 +1685,7 @@ export default function HomePage() {
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      removeFavorite(fav.id, fav.type);
+                                      removeFavorite(fav.spotifyId, fav.type);
                                     }}
                                     className="group relative"
                                   >
