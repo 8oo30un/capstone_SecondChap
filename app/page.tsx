@@ -14,7 +14,8 @@ const AuthButton = dynamic(() => import("./components/AuthButton"), {
 });
 
 type Album = {
-  id: string;
+  id: string; // 내부 ID (25자)
+  spotifyId: string; // Spotify ID (22자)
   name: string;
   release_date: string;
   images: { url: string; width: number; height: number }[];
@@ -23,7 +24,8 @@ type Album = {
 };
 
 type Artist = {
-  id: string;
+  id: string; // 내부 ID (25자)
+  spotifyId: string; // Spotify ID (22자)
   name: string;
   image: string;
 };
@@ -48,34 +50,40 @@ export default function HomePage() {
   const uniqueArtists = useMemo(() => {
     console.log("🔍 uniqueArtists 생성 - 원본 artists 개수:", artists.length);
 
-    const seenIds = new Set(); // ID 중복 체크
-    const seenNames = new Map(); // 이름 -> 최고 품질 아티스트 매핑
+    // Map을 사용하여 ID별로 최고 품질 아티스트 유지
+    const artistMap = new Map();
+    const duplicateIds = new Set();
 
-    const result = artists.filter((artist) => {
-      // ID 중복 체크
-      if (seenIds.has(artist.id)) {
-        console.log(`❌ ID 중복: ${artist.id} (${artist.name})`);
-        return false;
-      }
-
-      // 이름 중복 체크 (대소문자 무시)
-      const normalizedName = artist.name.toLowerCase().trim();
-      if (seenNames.has(normalizedName)) {
-        const existing = seenNames.get(normalizedName);
+    artists.forEach((artist: Artist) => {
+      if (artistMap.has(artist.id)) {
+        duplicateIds.add(artist.id);
+        const existing = artistMap.get(artist.id);
         // 이미지가 있는 것을 우선, 둘 다 이미지가 있으면 기존 것 유지
         if (artist.image && !existing.image) {
-          seenNames.set(normalizedName, artist);
-          seenIds.add(artist.id);
-          return true;
+          console.log(
+            `🔄 uniqueArtists에서 아티스트 업데이트: ${artist.id} (${artist.name}) - 이미지 추가`
+          );
+          artistMap.set(artist.id, artist);
+        } else {
+          console.log(
+            `❌ uniqueArtists에서 아티스트 ID 중복 제거: ${artist.id} (${artist.name})`
+          );
         }
-        return false;
+      } else {
+        artistMap.set(artist.id, artist);
       }
-
-      seenIds.add(artist.id);
-      seenNames.set(normalizedName, artist);
-      return true;
     });
 
+    // 중복 ID 요약 로그
+    if (duplicateIds.size > 0) {
+      console.log(
+        `⚠️ uniqueArtists에서 중복된 아티스트 ID 발견: ${Array.from(
+          duplicateIds
+        ).join(", ")}`
+      );
+    }
+
+    const result = Array.from(artistMap.values());
     console.log("🎯 uniqueArtists 결과 개수:", result.length);
     return result;
   }, [artists]);
@@ -83,34 +91,53 @@ export default function HomePage() {
   const uniqueAlbums = useMemo(() => {
     console.log("🔍 uniqueAlbums 생성 - 원본 albums 개수:", albums.length);
 
-    const seenIds = new Set(); // ID 중복 체크
-    const seenNames = new Map(); // 이름 -> 최고 품질 앨범 매핑
+    // Map을 사용하여 ID별로 최고 품질 앨범 유지
+    const albumMap = new Map();
+    const duplicateIds = new Set();
 
-    const result = albums.filter((album) => {
-      // ID 중복 체크
-      if (seenIds.has(album.id)) {
-        console.log(`❌ ID 중복: ${album.id} (${album.name})`);
-        return false;
-      }
+    albums.forEach((album: Album) => {
+      if (albumMap.has(album.id)) {
+        duplicateIds.add(album.id);
+        const existing = albumMap.get(album.id);
 
-      // 이름 중복 체크 (대소문자 무시)
-      const normalizedName = album.name.toLowerCase().trim();
-      if (seenNames.has(normalizedName)) {
-        const existing = seenNames.get(normalizedName);
-        // 더 많은 이미지를 가진 것을 우선
-        if (album.images?.length > existing.images?.length) {
-          seenNames.set(normalizedName, album);
-          seenIds.add(album.id);
-          return true;
+        // 동일한 ID의 앨범이 여러 번 나타나는 경우만 제거
+        // 서로 다른 앨범은 ID가 같아도 유지
+        if (album.name === existing.name) {
+          // 더 많은 이미지를 가진 것을 우선
+          if ((album.images?.length || 0) > (existing.images?.length || 0)) {
+            console.log(
+              `🔄 uniqueAlbums에서 앨범 업데이트: ${album.id} (${album.name}) - 더 많은 이미지`
+            );
+            albumMap.set(album.id, album);
+          } else {
+            console.log(
+              `❌ uniqueAlbums에서 동일한 앨범 ID 중복 제거: ${album.id} (${album.name})`
+            );
+          }
+        } else {
+          // 서로 다른 앨범이지만 ID가 같은 경우 - 유지
+          console.log(
+            `⚠️ uniqueAlbums에서 다른 앨범이지만 ID가 같은 경우: ${album.id} (${album.name}) vs ${existing.name}`
+          );
+          // 기존 앨범과 새 앨범을 모두 유지 (ID에 인덱스 추가)
+          albumMap.set(`${album.id}_1`, existing);
+          albumMap.set(`${album.id}_2`, album);
         }
-        return false;
+      } else {
+        albumMap.set(album.id, album);
       }
-
-      seenIds.add(album.id);
-      seenNames.set(normalizedName, album);
-      return true;
     });
 
+    // 중복 ID 요약 로그
+    if (duplicateIds.size > 0) {
+      console.log(
+        `⚠️ uniqueAlbums에서 중복된 앨범 ID 발견: ${Array.from(
+          duplicateIds
+        ).join(", ")}`
+      );
+    }
+
+    const result = Array.from(albumMap.values());
     console.log("🎯 uniqueAlbums 결과 개수:", result.length);
     return result;
   }, [albums]);
@@ -186,22 +213,22 @@ export default function HomePage() {
         return;
       }
 
-      // artist.id가 내부 ID인지 확인 (25자)
-      if (artist.id.length === 25) {
-        console.error("❌ artist.id가 내부 ID입니다:", {
-          artistId: artist.id,
-          artistIdLength: artist.id.length,
+      // artist.spotifyId가 내부 ID인지 확인 (25자)
+      if (artist.spotifyId.length === 25) {
+        console.error("❌ artist.spotifyId가 내부 ID입니다:", {
+          artistSpotifyId: artist.spotifyId,
+          artistSpotifyIdLength: artist.spotifyId.length,
           artistName: artist.name,
         });
         alert("아티스트 정보가 올바르지 않습니다. 검색을 다시 시도해주세요.");
         return;
       }
 
-      // artist.id가 Spotify ID인지 확인 (22자)
-      if (artist.id.length !== 22) {
-        console.error("❌ artist.id가 올바르지 않은 형식입니다:", {
-          artistId: artist.id,
-          artistIdLength: artist.id.length,
+      // artist.spotifyId가 Spotify ID인지 확인 (22자)
+      if (artist.spotifyId.length !== 22) {
+        console.error("❌ artist.spotifyId가 올바르지 않은 형식입니다:", {
+          artistSpotifyId: artist.spotifyId,
+          artistSpotifyIdLength: artist.spotifyId.length,
           artistName: artist.name,
         });
         alert("아티스트 정보가 올바르지 않습니다. 검색을 다시 시도해주세요.");
@@ -211,12 +238,12 @@ export default function HomePage() {
       try {
         console.log("🎯 Adding artist to favorites:", {
           artist: artist,
-          artistId: artist.id,
-          artistIdType: typeof artist.id,
-          artistIdLength: artist.id?.length,
+          artistSpotifyId: artist.spotifyId,
+          artistSpotifyIdType: typeof artist.spotifyId,
+          artistSpotifyIdLength: artist.spotifyId?.length,
           requestBody: {
             type: "artist",
-            spotifyId: artist.id,
+            spotifyId: artist.spotifyId,
             name: artist.name,
             image: artist.image,
           },
@@ -229,7 +256,7 @@ export default function HomePage() {
           },
           body: JSON.stringify({
             type: "artist",
-            spotifyId: artist.id,
+            spotifyId: artist.spotifyId,
             name: artist.name,
             image: artist.image,
           }),
@@ -297,22 +324,22 @@ export default function HomePage() {
         return;
       }
 
-      // album.id가 내부 ID인지 확인 (25자)
-      if (album.id.length === 25) {
-        console.error("❌ album.id가 내부 ID입니다:", {
-          albumId: album.id,
-          albumIdLength: album.id.length,
+      // album.spotifyId가 내부 ID인지 확인 (25자)
+      if (album.spotifyId.length === 25) {
+        console.error("❌ album.spotifyId가 내부 ID입니다:", {
+          albumSpotifyId: album.spotifyId,
+          albumSpotifyIdLength: album.spotifyId.length,
           albumName: album.name,
         });
         alert("앨범 정보가 올바르지 않습니다. 검색을 다시 시도해주세요.");
         return;
       }
 
-      // album.id가 Spotify ID인지 확인 (22자)
-      if (album.id.length !== 22) {
-        console.error("❌ album.id가 올바르지 않은 형식입니다:", {
-          albumId: album.id,
-          albumIdLength: album.id.length,
+      // album.spotifyId가 Spotify ID인지 확인 (22자)
+      if (album.spotifyId.length !== 22) {
+        console.error("❌ album.spotifyId가 올바르지 않은 형식입니다:", {
+          albumSpotifyId: album.spotifyId,
+          albumSpotifyIdLength: album.spotifyId.length,
           albumName: album.name,
         });
         alert("앨범 정보가 올바르지 않습니다. 검색을 다시 시도해주세요.");
@@ -322,12 +349,12 @@ export default function HomePage() {
       try {
         console.log("💿 Adding album to favorites:", {
           album: album,
-          albumId: album.id,
-          albumIdType: typeof album.id,
-          albumIdLength: album.id?.length,
+          albumSpotifyId: album.spotifyId,
+          albumSpotifyIdType: typeof album.spotifyId,
+          albumSpotifyIdLength: album.spotifyId?.length,
           requestBody: {
             type: "album",
-            spotifyId: album.id,
+            spotifyId: album.spotifyId,
             name: album.name,
             image: album.images[0]?.url || "",
           },
@@ -340,7 +367,7 @@ export default function HomePage() {
           },
           body: JSON.stringify({
             type: "album",
-            spotifyId: album.id,
+            spotifyId: album.spotifyId,
             name: album.name,
             image: album.images[0]?.url || "",
           }),
@@ -538,25 +565,57 @@ export default function HomePage() {
     [session?.user?.id, removingFavorites]
   );
 
-  const handleArtistClick = useCallback((artistId: string) => {
-    console.log("🎯 handleArtistClick 호출됨:", {
-      artistId: artistId,
-      artistIdType: typeof artistId,
-      artistIdLength: artistId?.length,
-    });
+  const handleArtistClick = useCallback(
+    (artistId: string) => {
+      console.log("🎯 handleArtistClick 호출됨:", {
+        artistId: artistId,
+        artistIdType: typeof artistId,
+        artistIdLength: artistId?.length,
+      });
 
-    // Spotify artist ID 형식 검증 (22자리 영숫자)
-    const spotifyArtistIdRegex = /^[a-zA-Z0-9]{22}$/;
-    if (!spotifyArtistIdRegex.test(artistId)) {
-      console.error("❌ Invalid Spotify artist ID format:", artistId);
-      alert("올바르지 않은 아티스트 ID입니다. 즐겨찾기를 다시 추가해주세요.");
-      return;
-    }
+      // 내부 ID인 경우 (25자) - 즐겨찾기에서 spotifyId 찾기
+      if (artistId.length === 25) {
+        console.log("🔍 내부 ID 감지됨, 즐겨찾기에서 spotifyId 찾는 중...");
 
-    console.log("✅ Spotify artist ID 검증 통과:", artistId);
-    setSelectedArtistId(artistId);
-    setSelectedAlbum(null);
-  }, []);
+        const favoriteArtist = favorites.find(
+          (fav) => fav.id === artistId && fav.type === "artist"
+        );
+
+        if (favoriteArtist && favoriteArtist.spotifyId) {
+          console.log("✅ 즐겨찾기에서 spotifyId 찾음:", {
+            internalId: artistId,
+            spotifyId: favoriteArtist.spotifyId,
+            name: favoriteArtist.name,
+          });
+
+          // Spotify ID로 계속 진행
+          artistId = favoriteArtist.spotifyId;
+        } else {
+          console.error("❌ 즐겨찾기에서 spotifyId를 찾을 수 없음:", {
+            internalId: artistId,
+            favorites: favorites.filter((f) => f.type === "artist"),
+          });
+          alert(
+            "아티스트 정보를 찾을 수 없습니다. 즐겨찾기를 다시 추가해주세요."
+          );
+          return;
+        }
+      }
+
+      // Spotify artist ID 형식 검증 (22자리 영숫자)
+      const spotifyArtistIdRegex = /^[a-zA-Z0-9]{22}$/;
+      if (!spotifyArtistIdRegex.test(artistId)) {
+        console.error("❌ Invalid Spotify artist ID format:", artistId);
+        alert("올바르지 않은 아티스트 ID입니다. 즐겨찾기를 다시 추가해주세요.");
+        return;
+      }
+
+      console.log("✅ Spotify artist ID 검증 통과:", artistId);
+      setSelectedArtistId(artistId);
+      setSelectedAlbum(null);
+    },
+    [favorites]
+  );
 
   const toggleSidebar = useCallback(() => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -710,8 +769,122 @@ export default function HomePage() {
         );
         if (response.ok) {
           const data = await response.json();
-          setAlbums(data.albums || []);
-          setArtists(data.artists || []);
+
+          console.log(
+            `📊 API 원본 결과: 아티스트 ${data.artists?.length || 0}개, 앨범 ${
+              data.albums?.length || 0
+            }개`
+          );
+
+          // 중복 제거를 위한 Map 사용 (최신/최고 품질 결과 유지)
+          const artistMap = new Map();
+          const albumMap = new Map();
+
+          console.log(
+            `🔍 중복 제거 시작 - 아티스트: ${
+              data.artists?.length || 0
+            }개, 앨범: ${data.albums?.length || 0}개`
+          );
+
+          // 중복 ID 추적을 위한 Set
+          const duplicateArtistIds = new Set();
+          const duplicateAlbumIds = new Set();
+
+          // artists 중복 제거 및 최고 품질 결과 유지
+          (data.artists || []).forEach(
+            (artist: { id: string; name: string; image?: string }) => {
+              if (artistMap.has(artist.id)) {
+                duplicateArtistIds.add(artist.id);
+                const existing = artistMap.get(artist.id);
+                // 이미지가 있는 것을 우선, 둘 다 이미지가 있으면 기존 것 유지
+                if (artist.image && !existing.image) {
+                  console.log(
+                    `🔄 아티스트 업데이트: ${artist.id} (${artist.name}) - 이미지 추가`
+                  );
+                  artistMap.set(artist.id, artist);
+                } else {
+                  console.log(
+                    `🔍 아티스트 중복 제거: ${artist.id} (${artist.name})`
+                  );
+                }
+              } else {
+                artistMap.set(artist.id, artist);
+              }
+            }
+          );
+
+          // albums 중복 제거 및 최고 품질 결과 유지
+          (data.albums || []).forEach(
+            (album: {
+              id: string;
+              name: string;
+              images?: { url: string; width: number; height: number }[];
+              release_date?: string;
+              external_urls?: { spotify: string };
+              artists?: { id: string; name: string }[];
+            }) => {
+              if (albumMap.has(album.id)) {
+                duplicateAlbumIds.add(album.id);
+                const existing = albumMap.get(album.id);
+                // 더 많은 이미지를 가진 것을 우선
+                if (
+                  (album.images?.length || 0) > (existing.images?.length || 0)
+                ) {
+                  console.log(
+                    `🔄 앨범 업데이트: ${album.id} (${album.name}) - 더 많은 이미지`
+                  );
+                  albumMap.set(album.id, album);
+                } else {
+                  console.log(`🔍 앨범 중복 제거: ${album.id} (${album.name})`);
+                }
+              } else {
+                albumMap.set(album.id, album);
+              }
+            }
+          );
+
+          // 중복 ID 요약 로그
+          if (duplicateArtistIds.size > 0) {
+            console.log(
+              `⚠️ 중복된 아티스트 ID 발견: ${Array.from(
+                duplicateArtistIds
+              ).join(", ")}`
+            );
+          }
+          if (duplicateAlbumIds.size > 0) {
+            console.log(
+              `⚠️ 중복된 앨범 ID 발견: ${Array.from(duplicateAlbumIds).join(
+                ", "
+              )}`
+            );
+          }
+
+          console.log(
+            `✅ 중복 제거 완료 - 아티스트: ${artistMap.size}개, 앨범: ${albumMap.size}개`
+          );
+
+          // Map에서 값만 추출하여 배열로 변환
+          const artistsWithSpotifyId = Array.from(artistMap.values()).map(
+            (artist) => ({
+              ...artist,
+              spotifyId: artist.id, // Spotify API의 id를 spotifyId로 매핑
+            })
+          );
+
+          const albumsWithSpotifyId = Array.from(albumMap.values()).map(
+            (album) => ({
+              ...album,
+              spotifyId: album.id, // Spotify API의 id를 spotifyId로 매핑
+            })
+          );
+
+          console.log(
+            `🎯 API 결과 중복 제거 후: 아티스트 ${artistsWithSpotifyId.length}개, 앨범 ${albumsWithSpotifyId.length}개`
+          );
+
+          // 중복 제거된 결과를 상태에 설정
+          setAlbums(albumsWithSpotifyId);
+          setArtists(artistsWithSpotifyId);
         }
       } catch (error) {
         console.error("데이터 로드 오류:", error);
@@ -1209,10 +1382,12 @@ export default function HomePage() {
                               onClick={() => {
                                 const enrichedAlbum = {
                                   ...album,
-                                  artists: album.artists.map((artist) => ({
-                                    ...artist,
-                                    image: "",
-                                  })),
+                                  artists: album.artists.map(
+                                    (artist: { id: string; name: string }) => ({
+                                      ...artist,
+                                      image: "",
+                                    })
+                                  ),
                                 };
                                 setSelectedAlbum(enrichedAlbum);
                                 setSelectedArtistId(null);
@@ -1237,7 +1412,12 @@ export default function HomePage() {
                               <div className="absolute bottom-0 w-full bg-black/60 text-white text-sm font-semibold text-center py-2 px-2">
                                 <div className="truncate">{album.name}</div>
                                 <div className="text-xs text-gray-300 truncate">
-                                  {album.artists.map((a) => a.name).join(", ")}
+                                  {album.artists
+                                    .map(
+                                      (a: { id: string; name: string }) =>
+                                        a.name
+                                    )
+                                    .join(", ")}
                                 </div>
                               </div>
                               <button
@@ -1378,7 +1558,7 @@ export default function HomePage() {
                               idType: typeof fav.id,
                               idLength: fav.id?.length,
                             });
-                            handleArtistClick(fav.spotifyId);
+                            handleArtistClick(fav.id);
                           }}
                           className="group relative rounded m-3 overflow-hidden shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                         >
@@ -1477,15 +1657,15 @@ export default function HomePage() {
                                 onClick={() => {
                                   const enrichedAlbum = {
                                     ...album,
-                                    artists: album.artists.map((artist) => {
-                                      const matchedArtist = artists.find(
-                                        (a) => a.id === artist.id
-                                      );
-                                      return {
+                                    artists: album.artists.map(
+                                      (artist: {
+                                        id: string;
+                                        name: string;
+                                      }) => ({
                                         ...artist,
-                                        image: matchedArtist?.image || "",
-                                      };
-                                    }),
+                                        image: "",
+                                      })
+                                    ),
                                   };
                                   setSelectedAlbum(enrichedAlbum);
                                   setSelectedArtistId(null);
