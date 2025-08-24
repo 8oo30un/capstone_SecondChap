@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export type DropItem = {
   id: string; // Prisma 자동 생성 ID
-  spotifyId: string; // Spotify의 실제 ID
+  spotifyId: string; // Spotify의 실제 ID (필수)
   name: string;
   image: string;
   type: "album" | "artist";
@@ -54,7 +54,10 @@ export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
         console.log("Drop parsed item:", item);
 
         // 중복 검사 (spotifyId로 비교)
-        if (favorites.find((fav) => fav.spotifyId === item.spotifyId)) {
+        if (
+          item.spotifyId &&
+          favorites.find((fav) => fav.spotifyId === item.spotifyId)
+        ) {
           console.log("Item already in favorites:", item);
           return;
         }

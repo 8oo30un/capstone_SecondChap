@@ -45,19 +45,50 @@ export default function AlbumDetailPanel({
       return;
     }
 
-    fetch(`/api/spotify/album?id=${album.id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        // Merge artist images from original album prop
-        const enrichedArtists = data.artists.map((artist: { name: string }) => {
-          const original = album.artists.find((a) => a.name === artist.name);
-          return {
-            ...artist,
-            image: original?.image,
-          };
-        });
-        setAlbumData({ ...data, artists: enrichedArtists });
-      });
+    // 앨범 정보와 아티스트 이미지를 병렬로 가져오기
+    const fetchAlbumData = async () => {
+      try {
+        // 1. 앨범 정보 가져오기
+        const albumRes = await fetch(`/api/spotify/album?id=${album.id}`);
+        const albumData = await albumRes.json();
+
+        // 2. 각 아티스트의 이미지를 병렬로 가져오기
+        const artistsWithImages = await Promise.all(
+          albumData.artists.map(
+            async (artist: { id: string; name: string }) => {
+              try {
+                // 아티스트 ID가 있으면 이미지 가져오기
+                if (artist.id) {
+                  const artistRes = await fetch(
+                    `/api/spotify/artist?id=${artist.id}`
+                  );
+                  if (artistRes.ok) {
+                    const artistData = await artistRes.json();
+                    return {
+                      ...artist,
+                      image: artistData.images?.[0]?.url || "",
+                    };
+                  }
+                }
+                return { ...artist, image: "" };
+              } catch (error) {
+                console.error(
+                  `Error fetching artist image for ${artist.name}:`,
+                  error
+                );
+                return { ...artist, image: "" };
+              }
+            }
+          )
+        );
+
+        setAlbumData({ ...albumData, artists: artistsWithImages });
+      } catch (error) {
+        console.error("Error fetching album data:", error);
+      }
+    };
+
+    fetchAlbumData();
   }, [album]);
 
   if (!album) return null;
@@ -65,7 +96,7 @@ export default function AlbumDetailPanel({
   const tracks = albumData?.tracks?.items ?? [];
 
   return (
-    <aside className="w-80 fixed right-0 top-0 h-full bg-white dark:bg-gray-900 border-l border-gray-300 dark:border-gray-700 shadow-lg p-4 overflow-y-auto transition-all duration-300">
+    <aside className="w-80 fixed right-0 top-0 h-full bg-white dark:bg-gray-900 border-l border-gray-300 dark:border-gray-700 shadow-lg p-4 overflow-y-auto transition-all duration-300 z-50">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold text-gray-800 dark:text-white">
           앨범 정보
