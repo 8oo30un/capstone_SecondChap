@@ -1669,7 +1669,7 @@ export default function HomePage() {
                 </span>
               </div>
               <div>
-                {/* 아티스트 그리드 */}
+                {/* 아티스트 그리드 - 반응형 그리드 */}
                 <div
                   id="favorite-artists-container"
                   className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
@@ -1760,6 +1760,114 @@ export default function HomePage() {
             </div>
           )}
 
+        {/* 즐겨찾기 앨범 섹션 - 아티스트 바로 밑에 표시 */}
+        {favorites.filter((f) => f.type === "album").length > 0 && (
+          <div className="px-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                즐겨찾기 앨범
+              </h3>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {favorites.filter((f) => f.type === "album").length}개 앨범
+              </span>
+            </div>
+            <div className="w-full">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                {favorites
+                  .filter((f) => f.type === "album")
+                  .map((fav) => (
+                    <div
+                      key={`favorite-${fav.id}-${
+                        fav.spotifyId
+                      }-${crypto.randomUUID()}`}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData(
+                          "application/json",
+                          JSON.stringify({
+                            id: fav.id,
+                            name: fav.name,
+                            image: fav.image || "",
+                            type: "album",
+                          })
+                        );
+                      }}
+                      onClick={() => {
+                        try {
+                          // 즐겨찾기 앨범 클릭 시 앨범 정보 표시
+                          const enrichedAlbum = {
+                            id: fav.spotifyId || fav.id || "",
+                            spotifyId: fav.spotifyId || fav.id || "", // Album 타입에 필수인 spotifyId 추가
+                            name: fav.name || "앨범명 없음",
+                            images: fav.image
+                              ? [{ url: fav.image, width: 200, height: 200 }]
+                              : [],
+                            artists: [
+                              {
+                                id: "",
+                                name: "알 수 없는 아티스트",
+                                image: "",
+                              },
+                            ],
+                            release_date: "",
+                            total_tracks: 0,
+                            external_urls: { spotify: "" },
+                            tracks: { items: [] },
+                          };
+                          setSelectedAlbum(enrichedAlbum);
+                          setSelectedArtistId(null);
+                        } catch (error) {
+                          console.error("즐겨찾기 앨범 클릭 에러:", error);
+                        }
+                      }}
+                      className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow flex flex-col cursor-pointer relative"
+                    >
+                      {/* 즐겨찾기 하트 버튼 */}
+                      <div className="absolute top-2 right-2 z-10">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFavorite(fav.spotifyId, fav.type);
+                          }}
+                          className="group relative"
+                        >
+                          <div className="w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center shadow-lg border border-white/20 backdrop-blur-sm hover:scale-110 transition-transform">
+                            <svg
+                              className="w-4 h-4 text-red-500 fill-current"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                              />
+                            </svg>
+                          </div>
+                        </button>
+                      </div>
+
+                      {fav.image ? (
+                        <Image
+                          src={fav.image}
+                          alt={fav.name}
+                          width={200}
+                          height={200}
+                          className="rounded-md w-full h-auto object-cover"
+                        />
+                      ) : (
+                        <div className="w-full aspect-square rounded-md bg-gray-200 dark:bg-gray-700" />
+                      )}
+                      <h2 className="mt-3 text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                        {fav.name}
+                      </h2>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 관련 아티스트 섹션 제거됨 - 즐겨찾기 전용으로 단순화 */}
 
         {/* 앨범 리스트 - 검색 중이 아닐 때만 표시 */}
@@ -1785,7 +1893,7 @@ export default function HomePage() {
                       {loading ? (
                         <Skeleton variant="album" count={5} />
                       ) : albums.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3">
                           {albums
                             .sort((a, b) => {
                               if (!a.release_date || !b.release_date) return 0;
@@ -1837,7 +1945,7 @@ export default function HomePage() {
                                     setSelectedAlbum(enrichedAlbum);
                                     setSelectedArtistId(null);
                                   }}
-                                  className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col cursor-pointer relative"
+                                  className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow flex flex-col cursor-pointer relative"
                                 >
                                   {/* 즐겨찾기 하트 버튼 */}
                                   <div className="absolute top-2 right-2 z-10">
@@ -2065,106 +2173,7 @@ export default function HomePage() {
                       )}
                     </div>
 
-                    {/* 앨범 즐겨찾기 섹션 */}
-                    {favorites.filter((f) => f.type === "album").length > 0 && (
-                      <div className="px-6 mb-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                            즐겨찾기 앨범
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={clearInvalidFavorites}
-                              className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition"
-                              title="잘못된 데이터 정리"
-                            >
-                              정리
-                            </button>
-                            <button
-                              onClick={forceClearAllFavorites}
-                              className="px-2 py-1 text-xs bg-red-700 text-white rounded hover:bg-red-800 transition"
-                              title="모든 즐겨찾기 강제 제거"
-                            >
-                              강제 정리
-                            </button>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              {
-                                favorites.filter((f) => f.type === "album")
-                                  .length
-                              }
-                              개 앨범
-                            </span>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                          {favorites
-                            .filter((f) => f.type === "album")
-                            .map((fav) => (
-                              <div
-                                key={`favorite-${fav.id}-${
-                                  fav.spotifyId
-                                }-${crypto.randomUUID()}`}
-                                draggable
-                                onDragStart={(e) => {
-                                  e.dataTransfer.setData(
-                                    "application/json",
-                                    JSON.stringify({
-                                      id: fav.id,
-                                      name: fav.name,
-                                      image: fav.image || "",
-                                      type: "album",
-                                    })
-                                  );
-                                }}
-                                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col cursor-pointer relative"
-                              >
-                                {/* 즐겨찾기 하트 버튼 */}
-                                <div className="absolute top-2 right-2 z-10">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      removeFavorite(fav.spotifyId, fav.type);
-                                    }}
-                                    className="group relative"
-                                  >
-                                    <div className="w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center shadow-lg border border-white/20 backdrop-blur-sm hover:scale-110 transition-transform">
-                                      <svg
-                                        className="w-4 h-4 text-red-500 fill-current"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                        />
-                                      </svg>
-                                    </div>
-                                  </button>
-                                </div>
-
-                                {fav.image ? (
-                                  <Image
-                                    src={fav.image}
-                                    alt={fav.name}
-                                    width={300}
-                                    height={300}
-                                    className="rounded-md w-full h-auto object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full aspect-square rounded-md bg-gray-200 dark:bg-gray-700" />
-                                )}
-                                <h2 className="mt-3 text-lg font-semibold text-gray-800 dark:text-gray-200">
-                                  {fav.name}
-                                </h2>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                                  앨범
-                                </p>
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-                    )}
+                    {/* 앨범 즐겨찾기 섹션은 즐겨찾기 아티스트 바로 밑으로 이동됨 */}
                   </>
                 ) : (
                   /* 즐겨찾기 아티스트가 없을 때 안내 메시지 */

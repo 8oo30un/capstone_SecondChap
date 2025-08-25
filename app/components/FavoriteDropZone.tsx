@@ -215,13 +215,13 @@ export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
 
       {/* 사이드바 */}
       <div
-        className={`fixed left-0 top-0 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-xl transition-transform duration-300 ease-in-out z-40 ${
+        className={`fixed left-0 top-0 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-xl transition-transform duration-300 ease-in-out z-40 overflow-hidden ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ width: "320px" }}
       >
         {/* 사이드바 헤더 */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center space-x-2">
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
               즐겨찾기
@@ -270,207 +270,220 @@ export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
           </button>
         </div>
 
-        {/* 드롭 영역 */}
-        <div
-          className={`m-4 p-6 border-2 border-dashed rounded-lg text-center transition-all duration-200 ${
-            isHovering
-              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-              : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50"
-          }`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          data-testid="favorite-drop-zone"
-        >
-          {favorites.length === 0 ? (
-            <div className="text-gray-500 dark:text-gray-400">
-              <svg
-                className="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
-              <p className="text-sm">앨범이나 아티스트를 여기에 드래그하여</p>
-              <p className="text-sm">즐겨찾기에 추가하세요</p>
-              <p className="text-xs text-gray-400 mt-2">
-                💡 이미 즐겨찾기된 항목도 재배치 가능
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {/* 아티스트 즐겨찾기 섹션 */}
-              {favorites.filter((item) => item.type === "artist").length >
-                0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 px-2">
-                    🎤 아티스트 (
-                    {favorites.filter((item) => item.type === "artist").length})
-                  </h3>
-                  <div className="space-y-2">
-                    {favorites
-                      .filter((item) => item.type === "artist")
-                      .map((item) => (
-                        <div
-                          key={item.id}
-                          draggable
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData(
-                              "application/json",
-                              JSON.stringify({
-                                id: item.id,
-                                name: item.name,
-                                image: item.image || "",
-                                type: item.type,
-                              })
-                            );
-                          }}
-                          className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm cursor-move hover:shadow-md transition-shadow"
-                        >
-                          {item.image ? (
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              width={48}
-                              height={48}
-                              className="w-12 h-12 object-cover rounded-md"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-md bg-gray-200 dark:bg-gray-700" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <button
-                              onClick={() => onArtistClick?.(item.id)}
-                              className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate text-left w-full hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
-                            >
-                              {item.name}
-                            </button>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              아티스트
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              console.log(
-                                "🎯 아티스트 즐겨찾기 해제 버튼 클릭:",
-                                {
-                                  id: item.id,
-                                  spotifyId: item.spotifyId,
-                                  name: item.name,
-                                  type: item.type,
-                                }
-                              );
-                              removeFavorite(item.spotifyId, item.type);
-                            }}
-                            className="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                            aria-label={`${item.name} 즐겨찾기에서 제거`}
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
+        {/* 스크롤 가능한 내용 영역 */}
+        <div className="flex-1 overflow-y-auto scrollbar-hide">
+          {/* 드롭 영역 */}
+          <div
+            className={`m-4 p-6 border-2 border-dashed rounded-lg text-center transition-all duration-200 ${
+              isHovering
+                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50"
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            data-testid="favorite-drop-zone"
+          >
+            {favorites.length === 0 ? (
+              <div className="text-gray-500 dark:text-gray-400">
+                <svg
+                  className="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+                <p className="text-sm">앨범이나 아티스트를 여기에 드래그하여</p>
+                <p className="text-sm">즐겨찾기에 추가하세요</p>
+                <p className="text-xs text-gray-400 mt-2">
+                  💡 이미 즐겨찾기된 항목도 재배치 가능
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4 max-h-[calc(100vh-150px)] overflow-y-auto scrollbar-hide">
+                {/* 즐겨찾기 목록 - 아티스트와 앨범을 순서대로 표시 */}
+                {(() => {
+                  const artists = favorites.filter(
+                    (item) => item.type === "artist"
+                  );
+                  const albums = favorites.filter(
+                    (item) => item.type === "album"
+                  );
 
-              {/* 앨범 즐겨찾기 섹션 */}
-              {favorites.filter((item) => item.type === "album").length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 px-2">
-                    💿 앨범 (
-                    {favorites.filter((item) => item.type === "album").length})
-                  </h3>
-                  <div className="space-y-2">
-                    {favorites
-                      .filter((item) => item.type === "album")
-                      .map((item) => (
-                        <div
-                          key={item.id}
-                          draggable
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData(
-                              "application/json",
-                              JSON.stringify({
-                                id: item.id,
-                                name: item.name,
-                                image: item.image || "",
-                                type: item.type,
-                              })
-                            );
-                          }}
-                          className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm cursor-move hover:shadow-md transition-shadow"
-                        >
-                          {item.image ? (
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              width={48}
-                              height={48}
-                              className="w-12 h-12 object-cover rounded-md"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-md bg-gray-200 dark:bg-gray-700" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
-                              {item.name}
-                            </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              앨범
-                            </p>
+                  return (
+                    <>
+                      {/* 아티스트 즐겨찾기 섹션 */}
+                      {artists.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 px-2">
+                            🎤 아티스트 ({artists.length})
+                          </h3>
+                          <div className="space-y-2">
+                            {artists.map((item) => (
+                              <div
+                                key={item.id}
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData(
+                                    "application/json",
+                                    JSON.stringify({
+                                      id: item.id,
+                                      name: item.name,
+                                      image: item.image || "",
+                                      type: item.type,
+                                    })
+                                  );
+                                }}
+                                className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm cursor-move hover:shadow-md transition-shadow"
+                              >
+                                {item.image ? (
+                                  <Image
+                                    src={item.image}
+                                    alt={item.name}
+                                    width={48}
+                                    height={48}
+                                    className="w-12 h-12 object-cover rounded-md"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-md bg-gray-200 dark:bg-gray-700" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <button
+                                    onClick={() => onArtistClick?.(item.id)}
+                                    className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate text-left w-full hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                                  >
+                                    {item.name}
+                                  </button>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    아티스트
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    console.log(
+                                      "🎯 아티스트 즐겨찾기 해제 버튼 클릭:",
+                                      {
+                                        id: item.id,
+                                        spotifyId: item.spotifyId,
+                                        name: item.name,
+                                        type: item.type,
+                                      }
+                                    );
+                                    removeFavorite(item.spotifyId, item.type);
+                                  }}
+                                  className="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                                  aria-label={`${item.name} 즐겨찾기에서 제거`}
+                                >
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M6 18L18 6M6 6l12 12"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                            ))}
                           </div>
-                          <button
-                            onClick={() => {
-                              console.log("🎯 앨범 즐겨찾기 해제 버튼 클릭:", {
-                                id: item.id,
-                                spotifyId: item.spotifyId,
-                                name: item.name,
-                                type: item.type,
-                              });
-                              removeFavorite(item.spotifyId, item.type);
-                            }}
-                            className="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                            aria-label={`${item.name} 즐겨찾기에서 제거`}
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
                         </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+                      )}
+
+                      {/* 앨범 즐겨찾기 섹션 - 아티스트 바로 밑에 표시 */}
+                      {albums.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 px-2">
+                            💿 앨범 ({albums.length})
+                          </h3>
+                          <div className="space-y-2">
+                            {albums.map((item) => (
+                              <div
+                                key={item.id}
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData(
+                                    "application/json",
+                                    JSON.stringify({
+                                      id: item.id,
+                                      name: item.name,
+                                      image: item.image || "",
+                                      type: item.type,
+                                    })
+                                  );
+                                }}
+                                className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm cursor-move hover:shadow-md transition-shadow"
+                              >
+                                {item.image ? (
+                                  <Image
+                                    src={item.image}
+                                    alt={item.name}
+                                    width={48}
+                                    height={48}
+                                    className="w-12 h-12 object-cover rounded-md"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-md bg-gray-200 dark:bg-gray-700" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
+                                    {item.name}
+                                  </div>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    앨범
+                                  </p>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    console.log(
+                                      "🎯 앨범 즐겨찾기 해제 버튼 클릭:",
+                                      {
+                                        id: item.id,
+                                        spotifyId: item.spotifyId,
+                                        name: item.name,
+                                        type: item.type,
+                                      }
+                                    );
+                                    removeFavorite(item.spotifyId, item.type);
+                                  }}
+                                  className="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                                  aria-label={`${item.name} 즐겨찾기에서 제거`}
+                                >
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M6 18L18 6M6 6l12 12"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
