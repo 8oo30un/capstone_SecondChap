@@ -340,19 +340,21 @@ export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
                                     })
                                   );
                                 }}
-                                className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm cursor-move hover:shadow-md transition-shadow"
+                                className="flex items-center space-x-3 p-3 enhanced-favorite-card rounded-lg shadow-sm cursor-move hover:shadow-md transition-shadow"
                               >
-                                {item.image ? (
-                                  <Image
-                                    src={item.image}
-                                    alt={item.name}
-                                    width={48}
-                                    height={48}
-                                    className="w-12 h-12 object-cover rounded-md"
-                                  />
-                                ) : (
-                                  <div className="w-12 h-12 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                )}
+                                <div className="enhanced-artist-image-container w-12 h-12">
+                                  {item.image ? (
+                                    <Image
+                                      src={item.image}
+                                      alt={item.name}
+                                      width={48}
+                                      height={48}
+                                      className="w-full h-full object-cover rounded-md"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full rounded-md bg-gray-200 dark:bg-gray-700" />
+                                  )}
+                                </div>
                                 <div className="flex-1 min-w-0">
                                   <button
                                     onClick={() => onArtistClick?.(item.id)}
@@ -422,19 +424,21 @@ export const FavoriteDropZone: React.FC<FavoriteDropZoneProps> = ({
                                     })
                                   );
                                 }}
-                                className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm cursor-move hover:shadow-md transition-shadow"
+                                className="flex items-center space-x-3 p-3 enhanced-favorite-card rounded-lg shadow-sm cursor-move hover:shadow-md transition-shadow"
                               >
-                                {item.image ? (
-                                  <Image
-                                    src={item.image}
-                                    alt={item.name}
-                                    width={48}
-                                    height={48}
-                                    className="w-12 h-12 object-cover rounded-md"
-                                  />
-                                ) : (
-                                  <div className="w-12 h-12 rounded-md bg-gray-200 dark:bg-gray-700" />
-                                )}
+                                <div className="enhanced-album-image-container w-12 h-12">
+                                  {item.image ? (
+                                    <Image
+                                      src={item.image}
+                                      alt={item.name}
+                                      width={48}
+                                      height={48}
+                                      className="w-full h-full object-cover rounded-md"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full rounded-md bg-gray-200 dark:bg-gray-700" />
+                                  )}
+                                </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
                                     {item.name}

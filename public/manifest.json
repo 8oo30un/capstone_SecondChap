@@ -1,0 +1,75 @@
+{
+  "name": "SecondChap - Music Discovery Platform",
+  "short_name": "SecondChap",
+  "description": "AI-powered music discovery platform that learns your taste and introduces you to artists and albums you never knew you needed.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ko",
+  "categories": ["music", "entertainment", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon-16x16.svg",
+      "sizes": "16x16",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon-32x32.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "SecondChap Music Discovery Platform"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Music",
+      "short_name": "Search",
+      "description": "Search for artists, albums, and songs",
+      "url": "/?search=true",
+      "icons": [
+        {
+          "src": "/favicon-32x32.svg",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "short_name": "Favorites",
+      "description": "View your favorite artists and albums",
+      "url": "/?favorites=true",
+      "icons": [
+        {
+          "src": "/favicon-32x32.svg",
+          "sizes": "32x32"
+        }
+      ]
+    }
+  ]
+}
+
