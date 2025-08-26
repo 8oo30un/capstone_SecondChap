@@ -3,24 +3,16 @@
   <defs>
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#1e293b;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e293b;stop-opacity:1" />
     </linearGradient>
     
-    <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
-    </linearGradient>
-    
-    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#06b6d4;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
     </linearGradient>
     
     <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
       <feMerge> 
         <feMergeNode in="coloredBlur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -28,64 +20,28 @@
     </filter>
   </defs>
   
-  <!-- 메인 배경 원 -->
-  <circle cx="256" cy="256" r="240" fill="url(#bgGradient)" stroke="url(#borderGradient)" stroke-width="12"/>
+  <!-- 메인 배경 원 (맥북 아이콘 기준으로 적절한 radius) -->
+  <circle cx="256" cy="256" r="224" fill="url(#bgGradient)" stroke="url(#accentGradient)" stroke-width="8" filter="url(#glow)"/>
   
-  <!-- 내부 원형 테두리 -->
-  <circle cx="256" cy="256" r="200" fill="none" stroke="url(#borderGradient)" stroke-width="4" opacity="0.3"/>
-  
-  <!-- 중앙 S 문자 -->
-  <text x="256" y="320" font-family="Arial, sans-serif" font-size="240" font-weight="900" text-anchor="middle" fill="url(#textGradient)" filter="url(#glow)">
-    S
-  </text>
-  
-  <!-- 음표 아이콘들 -->
-  <!-- 왼쪽 음표 -->
-  <g transform="translate(160, 240)">
-    <circle cx="0" cy="0" r="24" fill="none" stroke="#06b6d4" stroke-width="6" opacity="0.8"/>
-    <rect x="16" y="-40" width="6" height="80" fill="#06b6d4" opacity="0.8"/>
-    <circle cx="16" cy="-40" r="16" fill="#06b6d4" opacity="0.8"/>
-  </g>
-  
-  <!-- 오른쪽 음표 -->
-  <g transform="translate(352, 240)">
-    <circle cx="0" cy="0" r="24" fill="none" stroke="#8b5cf6" stroke-width="6" opacity="0.8"/>
-    <rect x="16" y="-40" width="6" height="80" fill="#8b5cf6" opacity="0.8"/>
-    <circle cx="16" cy="-40" r="16" fill="#8b5cf6" opacity="0.8"/>
-  </g>
-  
-  <!-- 하단 음표 -->
-  <g transform="translate(256, 360)">
-    <circle cx="0" cy="0" r="20" fill="none" stroke="#06b6d4" stroke-width="4" opacity="0.6"/>
-    <rect x="12" y="-32" width="4" height="64" fill="#06b6d4" opacity="0.6"/>
-    <circle cx="12" cy="-32" r="12" fill="#06b6d4" opacity="0.6"/>
-  </g>
-  
-  <!-- 음파 효과 -->
-  <g opacity="0.4">
-    <rect x="128" y="416" width="6" height="32" fill="#06b6d4" rx="3"/>
-    <rect x="144" y="408" width="6" height="48" fill="#8b5cf6" rx="3"/>
-    <rect x="160" y="400" width="6" height="64" fill="#06b6d4" rx="3"/>
-    <rect x="176" y="408" width="6" height="48" fill="#8b5cf6" rx="3"/>
-    <rect x="192" y="416" width="6" height="32" fill="#06b6d4" rx="3"/>
+  <!-- 중앙 음표 아이콘 -->
+  <g transform="translate(256, 256)">
+    <!-- 음표 머리 -->
+    <circle cx="0" cy="-32" r="40" fill="url(#accentGradient)"/>
     
-    <rect x="320" y="416" width="6" height="32" fill="#8b5cf6" rx="3"/>
-    <rect x="336" y="408" width="6" height="48" fill="#06b6d4" rx="3"/>
-    <rect x="352" y="400" width="6" height="64" fill="#8b5cf6" rx="3"/>
-    <rect x="368" y="408" width="6" height="48" fill="#06b6d4" rx="3"/>
-    <rect x="384" y="416" width="6" height="32" fill="#8b5cf6" rx="3"/>
+    <!-- 음표 줄기 -->
+    <rect x="-8" y="-32" width="16" height="128" fill="url(#accentGradient)"/>
+    
+    <!-- 음표 꼬리 -->
+    <path d="M 8 96 Q 48 96 48 64 Q 48 32 8 32" stroke="url(#accentGradient)" stroke-width="16" fill="none" stroke-linecap="round"/>
   </g>
   
-  <!-- 기하학적 장식 요소들 -->
-  <g opacity="0.3">
-    <!-- 상단 삼각형 -->
-    <polygon points="256,128 288,192 224,192" fill="none" stroke="#06b6d4" stroke-width="4"/>
-    
-    <!-- 좌측 사각형 -->
-    <rect x="128" y="192" width="32" height="32" fill="none" stroke="#8b5cf6" stroke-width="4" transform="rotate(45 144 208)"/>
-    
-    <!-- 우측 사각형 -->
-    <rect x="352" y="192" width="32" height="32" fill="none" stroke="#06b6d4" stroke-width="4" transform="rotate(-45 368 208)"/>
+  <!-- 작은 음파 효과 (미니멀하게) -->
+  <g opacity="0.7">
+    <rect x="128" y="384" width="16" height="64" fill="url(#accentGradient)" rx="8"/>
+    <rect x="160" y="368" width="16" height="96" fill="url(#accentGradient)" rx="8"/>
+    <rect x="192" y="352" width="16" height="128" fill="url(#accentGradient)" rx="8"/>
+    <rect x="224" y="368" width="16" height="96" fill="url(#accentGradient)" rx="8"/>
+    <rect x="256" y="384" width="16" height="64" fill="url(#accentGradient)" rx="8"/>
   </g>
 </svg>
 

@@ -137,8 +137,14 @@ export default function ArtistDetailPanel({
         </div>
 
         {/* 콘텐츠 영역 */}
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <div className="p-6 space-y-6">
+        <div
+          className="flex-1 overflow-y-auto min-h-0"
+          style={{
+            scrollbarWidth: "thin",
+            scrollbarColor: "#06b6d4 #1e293b",
+          }}
+        >
+          <div className="p-6 space-y-0">
             {loading ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 mx-auto mb-4 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>

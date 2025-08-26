@@ -19,3 +19,13 @@ export type DropItem = {
   image: string;
   type: "artist" | "album";
 };
+
+export type Track = {
+  id: string;
+  name: string;
+  track_number: number;
+  duration_ms: number;
+  explicit: boolean;
+  external_urls: { spotify: string };
+  artists: { id: string; name: string }[];
+};

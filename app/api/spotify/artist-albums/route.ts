@@ -42,13 +42,29 @@ interface SpotifyArtist {
 
 export async function GET(request: NextRequest) {
   try {
-    // 환경 변수 로딩 확인
-    console.log("🔍 API 라우트 - Spotify 환경 변수 확인:", {
-      hasClientId: !!process.env.SPOTIFY_CLIENT_ID,
-      hasClientSecret: !!process.env.SPOTIFY_CLIENT_SECRET,
-      clientIdLength: process.env.SPOTIFY_CLIENT_ID?.length || 0,
-      clientSecretLength: process.env.SPOTIFY_CLIENT_SECRET?.length || 0,
+    // 환경 변수 확인
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    
+    console.log("🔍 Artist-Albums API - 환경 변수 확인:", {
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+      clientIdLength: clientId?.length || 0,
+      clientSecretLength: clientSecret?.length || 0,
+      nodeEnv: process.env.NODE_ENV,
     });
+
+    if (!clientId || !clientSecret) {
+      console.error("❌ Spotify 환경 변수 누락");
+      return NextResponse.json(
+        { 
+          error: "Spotify credentials not configured",
+          details: "SPOTIFY_CLIENT_ID와 SPOTIFY_CLIENT_SECRET 환경 변수가 설정되지 않았습니다.",
+          solution: "Vercel 대시보드에서 환경 변수를 설정하거나 로컬에서 .env.local 파일을 생성하세요."
+        },
+        { status: 500 }
+      );
+    }
 
     const { searchParams } = new URL(request.url);
     const artistId = searchParams.get("artistId");

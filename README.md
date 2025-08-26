@@ -57,6 +57,35 @@ done: Login, route API, SEO-friendly
 
 to do: Design, favorite function, filtering
 
+## 환경 변수 설정
+
+이 프로젝트를 실행하려면 Spotify API 환경 변수를 설정해야 합니다.
+
+### 로컬 개발 환경
+
+1. 프로젝트 루트에 `.env.local` 파일 생성
+2. 다음 환경 변수 추가:
+
+```bash
+SPOTIFY_CLIENT_ID=your_spotify_client_id_here
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret_here
+```
+
+### Vercel 배포 환경
+
+1. Vercel 대시보드에서 프로젝트 선택
+2. Settings > Environment Variables로 이동
+3. 다음 환경 변수 추가:
+   - `SPOTIFY_CLIENT_ID`: Spotify Developer Dashboard의 Client ID
+   - `SPOTIFY_CLIENT_SECRET`: Spotify Developer Dashboard의 Client Secret
+
+### Spotify Developer Dashboard 설정
+
+1. [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) 접속
+2. 새 앱 생성 또는 기존 앱 선택
+3. Client ID와 Client Secret 복사
+4. Redirect URIs에 `http://localhost:3000/api/auth/callback/spotify` 추가 (로컬 개발용)
+
 ## question:
 
     1. What additional features could I implement to make this project more challenging and improve my skills?

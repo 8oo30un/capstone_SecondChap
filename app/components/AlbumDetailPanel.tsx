@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { Track } from "@/types/spotify";
 
 interface SpotifyAlbum {
   id: string;
@@ -30,10 +31,14 @@ export default function AlbumDetailPanel({
   onClose,
 }: AlbumDetailPanelProps) {
   const [artistInfo, setArtistInfo] = useState<SpotifyArtist | null>(null);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [tracksLoading, setTracksLoading] = useState(false);
+  const [tracksError, setTracksError] = useState<string | null>(null);
 
   useEffect(() => {
     if (album && album.artists && album.artists.length > 0) {
       fetchArtistInfo(album.artists[0].id);
+      fetchAlbumTracks(album.id);
     }
   }, [album]);
 
@@ -46,6 +51,30 @@ export default function AlbumDetailPanel({
       }
     } catch (error) {
       console.error("아티스트 정보 로드 오류:", error);
+    }
+  };
+
+  const fetchAlbumTracks = async (albumId: string) => {
+    try {
+      setTracksLoading(true);
+      setTracksError(null);
+
+      const response = await fetch(
+        `/api/spotify/album-tracks?albumId=${albumId}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setTracks(data.tracks || []);
+      } else {
+        const errorData = await response.json();
+        setTracksError(errorData.details || "트랙 목록을 불러올 수 없습니다.");
+        console.error("트랙 목록 로드 오류:", errorData);
+      }
+    } catch (error) {
+      console.error("트랙 목록 로드 오류:", error);
+      setTracksError("트랙 목록을 불러오는 중 오류가 발생했습니다.");
+    } finally {
+      setTracksLoading(false);
     }
   };
 
@@ -106,7 +135,13 @@ export default function AlbumDetailPanel({
         </div>
 
         {/* 콘텐츠 영역 */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div
+          className="flex-1 overflow-y-auto min-h-0"
+          style={{
+            scrollbarWidth: "thin",
+            scrollbarColor: "#06b6d4 #1e293b",
+          }}
+        >
           <div className="p-6 space-y-6">
             {/* 앨범 커버 */}
             <div className="text-center">
@@ -233,16 +268,91 @@ export default function AlbumDetailPanel({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
                   />
                 </svg>
-                <span>트랙 목록</span>
+                <span>트랙 목록 ({tracks.length}곡)</span>
               </h3>
-              <div className="text-center py-8">
-                <p className="text-gray-500">
-                  트랙 정보를 불러오는 중입니다...
-                </p>
-              </div>
+
+              {tracksLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-green-500 border-t-transparent mx-auto mb-4"></div>
+                  <p className="text-gray-500">트랙 정보를 불러오는 중...</p>
+                </div>
+              ) : tracksError ? (
+                <div className="text-center py-8">
+                  <p className="text-red-400 mb-2">
+                    트랙 목록을 불러올 수 없습니다
+                  </p>
+                  <p className="text-gray-500 text-sm">{tracksError}</p>
+                  <button
+                    onClick={() => fetchAlbumTracks(album.id)}
+                    className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    다시 시도
+                  </button>
+                </div>
+              ) : tracks.length > 0 ? (
+                <div
+                  className="space-y-2 max-h-64 overflow-y-auto"
+                  style={{
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#06b6d4 #1e293b",
+                  }}
+                >
+                  {tracks.map((track) => (
+                    <div
+                      key={track.id}
+                      className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-600/30 hover:bg-gray-700/50 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3 flex-1">
+                        <span className="text-sm text-gray-400 w-8 text-center">
+                          {track.track_number}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-medium truncate">
+                            {track.name}
+                          </p>
+                          <p className="text-sm text-gray-400 truncate">
+                            {track.artists.map((a) => a.name).join(", ")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {track.explicit && (
+                          <span className="text-xs bg-red-500 text-white px-1.5 py-0.5 rounded">
+                            E
+                          </span>
+                        )}
+                        <span className="text-sm text-gray-400">
+                          {Math.floor(track.duration_ms / 60000)}:
+                          {((track.duration_ms % 60000) / 1000)
+                            .toFixed(0)
+                            .padStart(2, "0")}
+                        </span>
+                        <a
+                          href={track.external_urls.spotify}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-400 hover:text-green-300 transition-colors"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">트랙 정보가 없습니다.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

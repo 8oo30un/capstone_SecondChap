@@ -2,7 +2,6 @@
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 
-
 export type DropItem = {
   id: string; // Prisma 자동 생성 ID
   spotifyId: string; // Spotify의 실제 ID (필수)
