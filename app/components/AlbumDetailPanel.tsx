@@ -1,234 +1,288 @@
-import { useEffect, useState } from "react";
+"use client";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import Skeleton from "@/app/components/Skeleton";
 
-interface Track {
-  id: string;
-  name: string;
-  preview_url: string | null;
-  artists: { name: string }[];
-  external_urls: { spotify: string };
-  duration_ms: number;
-}
-
-interface AlbumDetail {
+interface SpotifyAlbum {
   id: string;
   name: string;
   release_date: string;
-  images: { url: string }[];
-  artists: { name: string; image?: string }[];
-  tracks?: {
-    items: Track[];
-  };
+  total_tracks: number;
+  album_type: string;
+  images: { url: string; width: number; height: number }[];
+  external_urls: { spotify: string };
+  artists: { id: string; name: string }[];
+}
+
+interface SpotifyArtist {
+  id: string;
+  name: string;
+  images: { url: string; width: number; height: number }[];
   external_urls: { spotify: string };
 }
 
-// 시간을 mm:ss 형식으로 변환하는 함수
-function formatDuration(ms: number): string {
-  const minutes = Math.floor(ms / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000);
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+interface AlbumDetailPanelProps {
+  album: SpotifyAlbum | null;
+  onClose: () => void;
 }
 
 export default function AlbumDetailPanel({
   album,
   onClose,
-}: {
-  album: AlbumDetail | null;
-  onClose: () => void;
-}) {
-  const [albumData, setAlbumData] = useState<AlbumDetail | null>(null);
+}: AlbumDetailPanelProps) {
+  const [artistInfo, setArtistInfo] = useState<SpotifyArtist | null>(null);
+  const [tracks, setTracks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!album) {
-      setAlbumData(null);
-      return;
+    if (album && album.artists && album.artists.length > 0) {
+      fetchArtistInfo(album.artists[0].id);
     }
-
-    // 앨범 정보와 아티스트 이미지를 병렬로 가져오기
-    const fetchAlbumData = async () => {
-      try {
-        // 1. 앨범 정보 가져오기
-        const albumRes = await fetch(`/api/spotify/album?id=${album.id}`);
-        const albumData = await albumRes.json();
-
-        // 2. 각 아티스트의 이미지를 병렬로 가져오기
-        const artistsWithImages = await Promise.all(
-          albumData.artists.map(
-            async (artist: { id: string; name: string }) => {
-              try {
-                // 아티스트 ID가 있으면 이미지 가져오기
-                if (artist.id) {
-                  const artistRes = await fetch(
-                    `/api/spotify/artist?id=${artist.id}`
-                  );
-                  if (artistRes.ok) {
-                    const artistData = await artistRes.json();
-                    return {
-                      ...artist,
-                      image: artistData.images?.[0]?.url || "",
-                    };
-                  }
-                }
-                return { ...artist, image: "" };
-              } catch (error) {
-                console.error(
-                  `Error fetching artist image for ${artist.name}:`,
-                  error
-                );
-                return { ...artist, image: "" };
-              }
-            }
-          )
-        );
-
-        setAlbumData({ ...albumData, artists: artistsWithImages });
-      } catch (error) {
-        console.error("Error fetching album data:", error);
-      }
-    };
-
-    fetchAlbumData();
   }, [album]);
+
+  const fetchArtistInfo = async (artistId: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/spotify/artist?artistId=${artistId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setArtistInfo(data);
+      }
+    } catch (error) {
+      console.error("아티스트 정보 로드 오류:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!album) return null;
 
-  const tracks = albumData?.tracks?.items ?? [];
+  const albumImage = album.images?.[0]?.url;
+  const releaseDate = new Date(album.release_date);
+  const isNew =
+    (Date.now() - releaseDate.getTime()) / (1000 * 60 * 60 * 24) <= 30;
 
   return (
-    <aside className="w-80 fixed right-0 top-0 h-full bg-white dark:bg-gray-900 border-l border-gray-300 dark:border-gray-700 shadow-lg p-4 overflow-y-auto transition-all duration-300 z-50">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-          앨범 정보
-        </h2>
-        <button
-          onClick={onClose}
-          className="text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
-        >
-          ✕ 닫기
-        </button>
-      </div>
-
-      {albumData ? (
-        <div>
-          {albumData.images?.[0]?.url ? (
-            <Image
-              src={albumData.images[0].url}
-              alt={albumData.name}
-              width={600}
-              height={600}
-              className="rounded mb-3 w-full h-auto"
-            />
-          ) : (
-            <div className="w-full aspect-square rounded bg-gray-200 dark:bg-gray-700 mb-3" />
-          )}
-          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
-            {albumData.name}
-          </h3>
-
-          <div className="flex flex-col gap-2 mb-4">
-            {albumData.artists.map((artist) => (
-              <div key={artist.name} className="flex items-center gap-3">
-                {artist.image ? (
-                  <Image
-                    src={artist.image}
-                    alt={artist.name}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full object-cover"
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-end">
+      <aside className="w-96 h-full bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl border-l border-green-500/30 shadow-2xl flex flex-col">
+        {/* 헤더 */}
+        <div className="p-6 border-b border-green-500/30 bg-gradient-to-r from-green-600/20 via-emerald-600/20 to-teal-600/20 flex-shrink-0">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
                   />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-300" />
-                )}
-                <span className="text-sm text-gray-800 dark:text-gray-100">
-                  {artist.name}
-                </span>
+                </svg>
               </div>
-            ))}
-          </div>
-
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-            발매일: {albumData.release_date}
-          </p>
-
-          {/* 전체 앨범 재생 버튼 */}
-          <div className="mb-6">
-            <a
-              href={albumData.external_urls.spotify}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 w-full justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+              <div>
+                <h2 className="text-xl font-bold text-white">앨범 정보</h2>
+                <p className="text-sm text-green-300">Album Details</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-white hover:bg-red-500/20 rounded-lg transition-all duration-200"
+              aria-label="앨범 정보 닫기"
             >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                  clipRule="evenodd"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-              전체 앨범 재생 (Spotify)
-            </a>
+            </button>
           </div>
+        </div>
 
-          <h4 className="text-md font-bold mb-3 text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2">
-            수록곡 ({tracks.length}곡)
-          </h4>
+        {/* 콘텐츠 영역 */}
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="p-6 space-y-6">
+            {/* 앨범 커버 */}
+            <div className="text-center">
+              <div className="relative inline-block">
+                {albumImage ? (
+                  <Image
+                    src={albumImage}
+                    alt={album.name}
+                    width={200}
+                    height={200}
+                    className="rounded-2xl shadow-2xl shadow-green-500/20 hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="w-48 h-48 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-2xl shadow-green-500/20">
+                    🎵
+                  </div>
+                )}
+                {isNew && (
+                  <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+                    NEW
+                  </div>
+                )}
+              </div>
+            </div>
 
-          <ul className="space-y-2">
-            {tracks.map((track, index) => (
-              <li
-                key={track.id}
-                className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500 dark:text-gray-400 w-6">
-                      {index + 1}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
-                        {track.name}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {track.artists.map((a) => a.name).join(", ")}
-                      </div>
+            {/* 앨범 제목 */}
+            <div className="text-center">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-green-300 bg-clip-text text-transparent mb-2">
+                {album.name}
+              </h1>
+              <p className="text-green-300 text-sm">
+                {album.album_type.charAt(0).toUpperCase() +
+                  album.album_type.slice(1)}
+              </p>
+            </div>
+
+            {/* 아티스트 정보 */}
+            {artistInfo && (
+              <div className="p-4 bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-xl border border-gray-600/30">
+                <div className="flex items-center space-x-3">
+                  {artistInfo.images?.[0]?.url ? (
+                    <Image
+                      src={artistInfo.images[0].url}
+                      alt={artistInfo.name}
+                      width={48}
+                      height={48}
+                      className="rounded-full border-2 border-green-500/30"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold">
+                      {artistInfo.name.charAt(0)}
                     </div>
+                  )}
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">
+                      {artistInfo.name}
+                    </h3>
+                    <p className="text-sm text-green-300">아티스트</p>
                   </div>
                 </div>
+              </div>
+            )}
 
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400">
-                    {formatDuration(track.duration_ms)}
-                  </span>
-
-                  {/* 개별 곡 재생 버튼 */}
-                  <a
-                    href={track.external_urls.spotify}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-1.5 bg-green-600 hover:bg-green-700 text-white rounded-full transition-colors"
-                    title={`${track.name} 재생`}
+            {/* 출시일 */}
+            <div className="p-4 bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-xl border border-gray-600/30">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </a>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
                 </div>
-              </li>
-            ))}
-          </ul>
+                <div>
+                  <p className="text-sm text-gray-400">출시일</p>
+                  <p className="text-white font-medium">
+                    {releaseDate.toLocaleDateString("ko-KR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 재생 버튼 */}
+            <div className="text-center">
+              <a
+                href={album.external_urls?.spotify}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-green-500/25 hover:scale-105 transition-all duration-300"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                <span>Spotify에서 재생</span>
+              </a>
+            </div>
+
+            {/* 트랙 목록 */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                <svg
+                  className="w-5 h-5 text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                  />
+                </svg>
+                <span>트랙 목록</span>
+              </h3>
+              <div className="space-y-2">
+                {tracks.length > 0 ? (
+                  tracks.map((track, index) => (
+                    <div
+                      key={track.id}
+                      className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-xl border border-gray-600/20 hover:border-green-500/30 transition-all duration-200"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-sm text-green-400 font-mono w-8">
+                            {(index + 1).toString().padStart(2, "0")}
+                          </span>
+                          <span className="text-white font-medium">
+                            {track.name}
+                          </span>
+                        </div>
+                        <button className="p-2 text-green-400 hover:text-white hover:bg-green-500/20 rounded-lg transition-all duration-200">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">
+                      트랙 정보를 불러오는 중입니다...
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-      ) : (
-        <Skeleton variant="albumDetail" count={1} />
-      )}
-    </aside>
+      </aside>
+    </div>
   );
 }

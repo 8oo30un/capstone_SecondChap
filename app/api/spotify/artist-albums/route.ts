@@ -42,6 +42,14 @@ interface SpotifyArtist {
 
 export async function GET(request: NextRequest) {
   try {
+    // 환경 변수 로딩 확인
+    console.log("🔍 API 라우트 - Spotify 환경 변수 확인:", {
+      hasClientId: !!process.env.SPOTIFY_CLIENT_ID,
+      hasClientSecret: !!process.env.SPOTIFY_CLIENT_SECRET,
+      clientIdLength: process.env.SPOTIFY_CLIENT_ID?.length || 0,
+      clientSecretLength: process.env.SPOTIFY_CLIENT_SECRET?.length || 0,
+    });
+
     const { searchParams } = new URL(request.url);
     const artistId = searchParams.get("artistId");
 
@@ -88,6 +96,96 @@ export async function GET(request: NextRequest) {
         error: errorText,
         artistId: artistId,
       });
+
+      // 429 에러 (Rate Limit) 특별 처리
+      if (albumsResponse.status === 429) {
+        // 개발 환경에서는 더 짧은 대기 시간
+        const isDevelopment = process.env.NODE_ENV === "development";
+        const waitTime = isDevelopment ? 30000 : 120000; // 개발: 30초, 프로덕션: 2분
+
+        console.log(
+          `⚠️ Rate Limit 도달, ${waitTime / 1000}초 대기 후 재시도...`
+        );
+
+        // Rate Limit 발생 시 대기 후 재시도
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+
+        console.log("🔄 Rate Limit 대기 완료, 재시도 중...");
+
+        // 재시도
+        const retryResponse = await fetch(
+          `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=50`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (retryResponse.ok) {
+          console.log("✅ Rate Limit 재시도 성공!");
+          const retryData = await retryResponse.json();
+
+          // 앨범 데이터 정리 및 정렬
+          const albums: SpotifyAlbum[] = retryData.items
+            .map((album: SpotifyAlbum) => ({
+              id: album.id,
+              name: album.name,
+              release_date: album.release_date,
+              total_tracks: album.total_tracks,
+              album_type: album.album_type,
+              images: album.images,
+              external_urls: album.external_urls,
+              artists: album.artists,
+            }))
+            .sort((a: SpotifyAlbum, b: SpotifyAlbum) => {
+              return (
+                new Date(b.release_date).getTime() -
+                new Date(a.release_date).getTime()
+              );
+            });
+
+          // 아티스트 정보 가져오기
+          const artistResponse = await fetch(
+            `https://api.spotify.com/v1/artists/${artistId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          let artistInfo: SpotifyArtist | null = null;
+          if (artistResponse.ok) {
+            const artistData = await artistResponse.json();
+            artistInfo = {
+              id: artistData.id,
+              name: artistData.name,
+              images: artistData.images,
+              genres: artistData.genres,
+              popularity: artistData.popularity,
+              external_urls: artistData.external_urls,
+            };
+          }
+
+          return NextResponse.json({
+            artist: artistInfo,
+            albums: albums,
+            total: albums.length,
+          });
+        } else {
+          console.log("❌ Rate Limit 재시도 실패, 빈 결과 반환");
+          return NextResponse.json({
+            artist: null,
+            albums: [],
+            total: 0,
+            rateLimitReached: true,
+            message:
+              "Spotify API 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.",
+          });
+        }
+      }
+
       throw new Error(
         `Spotify API error: ${albumsResponse.status} - ${errorText}`
       );

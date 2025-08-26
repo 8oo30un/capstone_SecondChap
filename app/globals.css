@@ -35,6 +35,36 @@ body {
   display: none; /* Chrome, Safari and Opera */
 }
 
+/* 커스텀 스크롤바 스타일 */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.5) rgba(17, 24, 39, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(17, 24, 39, 0.3);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 4px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+  background: rgba(17, 24, 39, 0.3);
+}
+
 /* 웹사이트 특색 스타일링 */
 .music-gradient-bg {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -1627,10 +1657,8 @@ body {
   background-size: 200% 200%;
   animation: enhancedGradientShift 3s ease infinite;
   border: 1px solid rgba(34, 197, 94, 0.4);
-  box-shadow: 
-    0 4px 15px rgba(34, 197, 94, 0.3),
-    0 0 0 1px rgba(34, 197, 94, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3),
+    0 0 0 1px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -1655,10 +1683,8 @@ body {
 
 .enhanced-play-button:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 
-    0 8px 25px rgba(34, 197, 94, 0.4),
-    0 0 0 2px rgba(34, 197, 94, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4),
+    0 0 0 2px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background: linear-gradient(
     135deg,
     rgba(34, 197, 94, 1) 0%,
@@ -1686,10 +1712,8 @@ body {
   background-size: 200% 200%;
   animation: enhancedGradientShift 4s ease infinite;
   border: 1px solid rgba(239, 68, 68, 0.4);
-  box-shadow: 
-    0 4px 15px rgba(239, 68, 68, 0.3),
-    0 0 0 1px rgba(239, 68, 68, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3),
+    0 0 0 1px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -1714,10 +1738,8 @@ body {
 
 .enhanced-heart-button:hover {
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 
-    0 8px 25px rgba(239, 68, 68, 0.4),
-    0 0 0 2px rgba(239, 68, 68, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4),
+    0 0 0 2px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background: linear-gradient(
     135deg,
     rgba(239, 68, 68, 1) 0%,
@@ -1745,10 +1767,8 @@ body {
   background-size: 200% 200%;
   animation: enhancedGradientShift 4s ease infinite;
   border: 1px solid rgba(107, 114, 128, 0.4);
-  box-shadow: 
-    0 4px 15px rgba(107, 114, 128, 0.3),
-    0 0 0 1px rgba(107, 114, 128, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3),
+    0 0 0 1px rgba(107, 114, 128, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -1773,10 +1793,8 @@ body {
 
 .enhanced-heart-button-unfilled:hover {
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 
-    0 8px 25px rgba(239, 68, 68, 0.4),
-    0 0 0 2px rgba(239, 68, 68, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4),
+    0 0 0 2px rgba(239, 68, 68, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   background: linear-gradient(
     135deg,
     rgba(239, 68, 68, 0.9) 0%,

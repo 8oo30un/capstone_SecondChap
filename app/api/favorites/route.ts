@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 // 즐겨찾기 조회
 export async function GET() {
-  console.log("GET /api/favorites called");
+  console.log("GET /api/favorites called - 라우트 정상 작동 확인");
   try {
     const session = await getServerSession(authOptions);
     console.log("Session in GET:", session);

@@ -3,11 +3,26 @@ export async function getSpotifyAccessToken(): Promise<string | null> {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-  if (!clientId || !clientSecret) return null;
+  // 환경 변수 로딩 확인
+  console.log("🔍 Spotify 환경 변수 확인:", {
+    hasClientId: !!clientId,
+    hasClientSecret: !!clientSecret,
+    clientIdLength: clientId?.length || 0,
+    clientSecretLength: clientSecret?.length || 0,
+  });
+
+  if (!clientId || !clientSecret) {
+    console.error("❌ Spotify 환경 변수 누락:", { clientId, clientSecret });
+    return null;
+  }
+
+  console.log("✅ 환경 변수 확인 완료, 토큰 요청 시작...");
 
   const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString(
     "base64"
   );
+
+  console.log("🌐 Spotify 토큰 API 호출 시작...");
 
   const res = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
@@ -18,7 +33,24 @@ export async function getSpotifyAccessToken(): Promise<string | null> {
     body: "grant_type=client_credentials",
   });
 
+  console.log("📡 Spotify 토큰 API 응답:", {
+    status: res.status,
+    statusText: res.statusText,
+    ok: res.ok,
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("❌ Spotify 토큰 API 오류:", errorText);
+    return null;
+  }
+
   const data = await res.json();
+  console.log("✅ Spotify 토큰 획득 성공:", {
+    hasAccessToken: !!data.access_token,
+    tokenLength: data.access_token?.length || 0,
+  });
+
   return data.access_token ?? null;
 }
 

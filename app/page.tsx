@@ -4,21 +4,19 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import AlbumDetailPanel from "./components/AlbumDetailPanel";
 import ArtistDetailPanel from "./components/ArtistDetailPanel";
-import dynamic from "next/dynamic";
+
 import Skeleton from "./components/Skeleton";
-import { FavoriteDropZone, DropItem } from "./components/FavoriteDropZone";
+import FavoriteDropZone, { DropItem } from "./components/FavoriteDropZone";
 import CyberpunkLogin from "./components/CyberpunkLogin";
 import CyberpunkLanding from "./components/CyberpunkLanding";
-
-const AuthButton = dynamic(() => import("./components/AuthButton"), {
-  ssr: false,
-});
 
 type Album = {
   id: string; // 내부 ID (25자)
   spotifyId: string; // Spotify ID (22자)
   name: string;
   release_date: string;
+  total_tracks?: number;
+  album_type?: string;
   images: { url: string; width: number; height: number }[];
   external_urls: { spotify: string };
   artists: { id: string; name: string }[];
@@ -36,8 +34,8 @@ export default function HomePage() {
 
   const [albums, setAlbums] = useState<Album[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
-  const [country, setCountry] = useState("KR");
-  const [genre, setGenre] = useState("");
+  const [country] = useState("KR");
+  const [genre] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -72,13 +70,6 @@ export default function HomePage() {
     return { daysAgo: diffDays, isNew, formattedDate };
   }, []);
 
-  // 관련 아티스트 기능 제거 - 즐겨찾기 전용으로 단순화
-  const loadCollaborationBasedRecommendations = useCallback(async () => {
-    // 이 함수는 더 이상 사용하지 않음
-    console.log("ℹ️ 관련 아티스트 기능이 제거되었습니다");
-    // 관련 아티스트 설정 제거됨
-  }, []);
-
   // 관련 아티스트 기능 제거됨
 
   // 즐겨찾기 아티스트들의 앨범 로드 함수 (효율적인 배치 처리)
@@ -96,7 +87,7 @@ export default function HomePage() {
         });
 
         // 배치 크기를 줄임 (rate limit 방지)
-        const batchSize = 2;
+        const batchSize = 1; // 한 번에 하나씩 처리하여 안정성 향상
         const allAlbums = [];
 
         for (let i = 0; i < allArtists.length; i += batchSize) {
@@ -121,6 +112,13 @@ export default function HomePage() {
 
               if (artistAlbumsResponse.ok) {
                 const artistAlbumsData = await artistAlbumsResponse.json();
+
+                // Rate Limit 체크
+                if (artistAlbumsData.rateLimitReached) {
+                  console.log(`⚠️ ${artist.name}: ${artistAlbumsData.message}`);
+                  return [];
+                }
+
                 const albums = artistAlbumsData.albums || [];
 
                 // 모든 앨범을 로드 (즐겨찾기 아티스트만)
@@ -158,16 +156,25 @@ export default function HomePage() {
 
           // 배치 간 지연을 늘림 (rate limit 방지)
           if (i + batchSize < allArtists.length) {
-            console.log(`⏳ 다음 배치까지 1.5초 대기...`);
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            console.log(`⏳ 다음 배치까지 5분 대기... (rate limit 방지)`);
+            await new Promise((resolve) => setTimeout(resolve, 300000));
           }
         }
 
         const flatAlbums = allAlbums.flat();
 
+        // Rate Limit 체크
+        const rateLimitReached = flatAlbums.some(
+          (albums) => albums && Array.isArray(albums) && albums.length === 0
+        );
+
+        if (rateLimitReached) {
+          console.log("⚠️ 일부 아티스트에서 Rate Limit 발생");
+        }
+
         // 중복 제거 및 출시일 순으로 정렬
         const uniqueAlbums = Array.from(
-          new Map(flatAlbums.map((album) => [album.id, album])).values()
+          new Map(flatAlbums.flat().map((album) => [album.id, album])).values()
         ).sort((a, b) => {
           if (!a.release_date || !b.release_date) return 0;
           const dateA = new Date(a.release_date);
@@ -296,19 +303,6 @@ export default function HomePage() {
     console.log("🎯 uniqueAlbums 결과 개수:", result.length);
     return result;
   }, [albums]);
-
-  const headerGradient = useMemo(() => {
-    if (genre === "k-pop") return "from-pink-500 to-purple-600";
-    if (genre === "pop") return "from-indigo-500 to-sky-500";
-    if (genre === "rock") return "from-gray-700 to-red-700";
-    if (genre === "hip hop") return "from-amber-500 to-orange-600";
-    if (searchQuery) return "from-fuchsia-500 to-cyan-500";
-    if (country === "KR") return "from-rose-500 to-pink-600";
-    if (country === "JP") return "from-violet-500 to-indigo-600";
-    if (country === "US") return "from-blue-600 to-emerald-500";
-    if (country === "GB") return "from-indigo-600 to-purple-600";
-    return "from-emerald-500 to-teal-600";
-  }, [genre, searchQuery, country]);
 
   const handleDropItem = useCallback(
     async (item: DropItem) => {
@@ -633,7 +627,15 @@ export default function HomePage() {
   }, [session?.user?.id]);
 
   const removeFavorite = useCallback(
-    async (id: string, type: "artist" | "album") => {
+    async (id: string) => {
+      // id에서 실제 spotifyId와 type을 추출
+      const favorite = favorites.find((fav) => fav.id === id);
+      if (!favorite) {
+        console.error("❌ 즐겨찾기 항목을 찾을 수 없음:", id);
+        return;
+      }
+
+      const { spotifyId, type } = favorite;
       const favoriteKey = `${id}-${type}`;
 
       // 이미 삭제 중인 경우 중복 실행 방지
@@ -903,13 +905,13 @@ export default function HomePage() {
     loadFavorites();
   }, [session?.user?.id]);
 
-  // 검색 쿼리 디바운싱 (빠른 응답)
+  // 검색 쿼리 디바운싱 (Rate Limit 방지를 위해 시간 증가)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isComposing) {
         setDebouncedQuery(searchQuery);
       }
-    }, 150); // 300ms → 150ms로 단축
+    }, 1000); // 150ms → 1000ms로 증가 (Rate Limit 방지)
 
     return () => clearTimeout(timer);
   }, [searchQuery, isComposing]);
@@ -926,7 +928,11 @@ export default function HomePage() {
   // 앨범 및 아티스트 데이터 로드 (최적화된 검색)
   useEffect(() => {
     const fetchData = async () => {
-      if (!debouncedQuery || debouncedQuery.length < 2) return;
+      // 검색어가 없거나 너무 짧으면 API 호출 안함 (Rate Limit 방지)
+      if (!debouncedQuery || debouncedQuery.trim().length < 2) {
+        console.log("🚫 검색어가 너무 짧아 API 호출을 건너뜁니다");
+        return;
+      }
 
       setLoading(true);
 
@@ -1090,130 +1096,6 @@ export default function HomePage() {
     loadFavoriteAndRelatedAlbums,
     // loadCollaborationBasedRecommendations, // 자동 로드 비활성화
   ]);
-
-  const clearInvalidFavorites = useCallback(async () => {
-    if (!session?.user?.id) return;
-
-    try {
-      console.log("🧹 수동 정리 시작...");
-
-      // 모든 즐겨찾기 데이터 가져오기
-      const response = await fetch("/api/favorites");
-      if (response.ok) {
-        const data = await response.json();
-        console.log("📊 현재 즐겨찾기 데이터:", data);
-
-        // 모든 즐겨찾기 데이터를 제거 (강제 정리)
-        const invalidData = data;
-
-        console.log("🚨 발견된 잘못된 데이터:", invalidData);
-
-        if (invalidData.length > 0) {
-          // 잘못된 데이터 모두 제거
-          const removePromises = invalidData.map(
-            async (invalidItem: DropItem) => {
-              try {
-                console.log(
-                  `🗑️ 제거 중: ${invalidItem.name} (${invalidItem.spotifyId})`
-                );
-                const deleteResponse = await fetch(
-                  `/api/favorites?spotifyId=${invalidItem.spotifyId}&type=${invalidItem.type}`,
-                  { method: "DELETE" }
-                );
-                if (deleteResponse.ok) {
-                  console.log(`✅ 제거 성공: ${invalidItem.name}`);
-                  return true;
-                } else {
-                  console.error(
-                    `❌ 제거 실패: ${invalidItem.name} (${deleteResponse.status})`
-                  );
-                  return false;
-                }
-              } catch (error) {
-                console.error(`💥 제거 중 오류: ${invalidItem.name}`, error);
-                return false;
-              }
-            }
-          );
-
-          const results = await Promise.all(removePromises);
-          const successCount = results.filter(Boolean).length;
-
-          console.log(
-            `🎉 수동 정리 완료: ${successCount}/${invalidData.length}개 제거됨`
-          );
-
-          // 즐겨찾기 다시 로드
-          const refreshResponse = await fetch("/api/favorites");
-          if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
-            setFavorites(refreshData);
-            console.log("✨ 즐겨찾기 새로고침 완료");
-          }
-        } else {
-          console.log("✅ 잘못된 데이터가 없습니다.");
-        }
-      }
-    } catch (error) {
-      console.error("💥 즐겨찾기 정리 오류:", error);
-    }
-  }, [session?.user?.id]);
-
-  // 강제로 모든 즐겨찾기 제거하는 함수
-  const forceClearAllFavorites = useCallback(async () => {
-    if (!session?.user?.id) return;
-
-    try {
-      console.log("🧹 강제 정리 시작 - 모든 즐겨찾기 제거...");
-
-      // 현재 즐겨찾기 데이터 가져오기
-      const response = await fetch("/api/favorites");
-      if (response.ok) {
-        const data = await response.json();
-        console.log("📊 제거할 즐겨찾기 데이터:", data);
-
-        if (data.length > 0) {
-          // 모든 즐겨찾기 제거
-          const removePromises = data.map(async (item: DropItem) => {
-            try {
-              console.log(`🗑️ 강제 제거 중: ${item.name} (${item.spotifyId})`);
-              const deleteResponse = await fetch(
-                `/api/favorites?spotifyId=${item.spotifyId}&type=${item.type}`,
-                { method: "DELETE" }
-              );
-              if (deleteResponse.ok) {
-                console.log(`✅ 강제 제거 성공: ${item.name}`);
-                return true;
-              } else {
-                console.error(
-                  `❌ 강제 제거 실패: ${item.name} (${deleteResponse.status})`
-                );
-                return false;
-              }
-            } catch (error) {
-              console.error(`💥 강제 제거 중 오류: ${item.name}`, error);
-              return false;
-            }
-          });
-
-          const results = await Promise.all(removePromises);
-          const successCount = results.filter(Boolean).length;
-
-          console.log(
-            `🎉 강제 정리 완료: ${successCount}/${data.length}개 제거됨`
-          );
-
-          // 즐겨찾기 상태 초기화
-          setFavorites([]);
-          console.log("✨ 즐겨찾기 상태 초기화 완료");
-        } else {
-          console.log("✅ 제거할 즐겨찾기가 없습니다.");
-        }
-      }
-    } catch (error) {
-      console.error("💥 강제 정리 오류:", error);
-    }
-  }, [session?.user?.id]);
 
   if (status === "loading") return <p>로딩 중...</p>;
   if (!session) return <CyberpunkLanding />;
@@ -1506,7 +1388,15 @@ export default function HomePage() {
 
                                     if (isFavorite) {
                                       console.log("🗑️ 즐겨찾기 제거 실행");
-                                      removeFavorite(artist.id, "artist");
+                                      // 즐겨찾기에서 해당 아티스트 찾기
+                                      const favorite = favorites.find(
+                                        (f) =>
+                                          f.spotifyId === artist.id &&
+                                          f.type === "artist"
+                                      );
+                                      if (favorite) {
+                                        removeFavorite(favorite.id);
+                                      }
                                     } else {
                                       console.log("❤️ 즐겨찾기 추가 실행");
                                       handleArtistFavorite(artist);
@@ -1680,7 +1570,15 @@ export default function HomePage() {
                                         f.id === album.id && f.type === "album"
                                     );
                                     if (isFavorite) {
-                                      removeFavorite(album.id, "album");
+                                      // 즐겨찾기에서 해당 앨범 찾기
+                                      const favorite = favorites.find(
+                                        (f) =>
+                                          f.id === album.id &&
+                                          f.type === "album"
+                                      );
+                                      if (favorite) {
+                                        removeFavorite(favorite.id);
+                                      }
                                     } else {
                                       handleAlbumFavorite(album);
                                     }
@@ -1773,7 +1671,7 @@ export default function HomePage() {
             !searchQuery && (
               <div className="px-6 mb-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-cyan-400 font-bold">
+                  <h3 className="text-lg font-bold text-cyan-400">
                     🎤 즐겨찾기 아티스트
                   </h3>
                   <span className="text-sm text-slate-400">
@@ -1837,7 +1735,7 @@ export default function HomePage() {
                                     alt={artistName}
                                     width={120}
                                     height={96}
-                                    className="w-full h-full object-cover transition-all duration-300 group-hover:blur-[2px] group-hover:brightness-75"
+                                    className="w-full h-full object-cover transition-all duration-300"
                                   />
                                 ) : (
                                   <div className="w-full h-full bg-gray-200 dark:bg-gray-700" />
@@ -1846,26 +1744,6 @@ export default function HomePage() {
                               <div className="absolute bottom-0 w-full bg-black/60 text-white text-xs sm:text-sm font-semibold text-center py-1">
                                 {artistName}
                               </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  removeFavorite(fav.spotifyId, fav.type);
-                                }}
-                                className="absolute top-2 right-2 w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center shadow-lg border border-white/20 backdrop-blur-sm hover:scale-110 transition-transform z-10"
-                                aria-label="즐겨찾기 해제"
-                              >
-                                <svg
-                                  className="w-4 h-4 text-red-500 fill-current"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                  />
-                                </svg>
-                              </button>
                             </div>
                           </div>
                         );
@@ -1929,6 +1807,11 @@ export default function HomePage() {
                                 id: fav.id || "",
                                 spotifyId: fav.id || "",
                                 name: fav.name || "앨범명 없음",
+                                release_date: new Date()
+                                  .toISOString()
+                                  .split("T")[0],
+                                total_tracks: 0,
+                                album_type: "album",
                                 images: fav.image
                                   ? [
                                       {
@@ -1942,11 +1825,8 @@ export default function HomePage() {
                                   {
                                     id: "",
                                     name: "알 수 없는 아티스트",
-                                    image: "",
                                   },
                                 ],
-                                release_date: "",
-                                total_tracks: 0,
                                 external_urls: { spotify: "" },
                                 tracks: { items: [] },
                               };
@@ -1960,29 +1840,6 @@ export default function HomePage() {
                         className="enhanced-favorite-card backdrop-blur-sm rounded-lg p-3 flex flex-col cursor-pointer relative hover:bg-slate-700/80 transition-all duration-300 hover:scale-105"
                       >
                         {/* 즐겨찾기 하트 버튼 */}
-                        <div className="absolute top-2 right-2 z-10">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFavorite(fav.spotifyId, fav.type);
-                            }}
-                            className="group relative"
-                          >
-                            <div className="w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center shadow-lg border border-white/20 backdrop-blur-sm hover:scale-110 transition-transform">
-                              <svg
-                                className="w-4 h-4 text-red-500 fill-current"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                />
-                              </svg>
-                            </div>
-                          </button>
-                        </div>
 
                         <div className="enhanced-album-image-container w-full aspect-square">
                           {fav.image ? (
@@ -2021,7 +1878,7 @@ export default function HomePage() {
                     <>
                       <div className="px-6 pb-6">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold enhanced-favorite-title font-bold">
+                          <h3 className="text-lg font-bold enhanced-favorite-title">
                             🎵 즐겨찾기 아티스트 신곡
                           </h3>
                           <span className="text-sm text-slate-400">
@@ -2211,7 +2068,7 @@ export default function HomePage() {
                                     ) : (
                                       <div className="w-full aspect-square rounded-md bg-gray-200 dark:bg-gray-700" />
                                     )}
-                                    <h2 className="mt-3 text-lg font-semibold text-gray-900 dark:text-gray-100 font-bold">
+                                    <h2 className="mt-3 text-lg font-bold text-gray-900 dark:text-gray-100">
                                       {album.name}
                                     </h2>
                                     <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
@@ -2372,7 +2229,20 @@ export default function HomePage() {
         </main>
 
         <AlbumDetailPanel
-          album={selectedAlbum}
+          album={
+            selectedAlbum
+              ? {
+                  id: selectedAlbum.id,
+                  name: selectedAlbum.name,
+                  release_date: selectedAlbum.release_date,
+                  total_tracks: selectedAlbum.total_tracks || 0,
+                  album_type: selectedAlbum.album_type || "album",
+                  images: selectedAlbum.images,
+                  external_urls: selectedAlbum.external_urls,
+                  artists: selectedAlbum.artists,
+                }
+              : null
+          }
           onClose={() => setSelectedAlbum(null)}
         />
 
