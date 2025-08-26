@@ -635,7 +635,7 @@ export default function HomePage() {
         return;
       }
 
-      const { spotifyId, type } = favorite;
+      const { type } = favorite;
       const favoriteKey = `${id}-${type}`;
 
       // 이미 삭제 중인 경우 중복 실행 방지
@@ -740,7 +740,8 @@ export default function HomePage() {
         });
       }
     },
-    [session?.user?.id, removingFavorites]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [session?.user?.id]
   );
 
   const handleArtistClick = useCallback(
@@ -795,7 +796,7 @@ export default function HomePage() {
       // 관련 아티스트 기능이 제거되었으므로 이 부분은 비활성화
       // loadCollaborationBasedRecommendations();
     },
-    [favorites]
+    [favorites, setSelectedArtistId, setSelectedAlbum]
   );
 
   const toggleSidebar = useCallback(() => {

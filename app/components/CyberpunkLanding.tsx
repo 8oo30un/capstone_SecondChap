@@ -159,7 +159,7 @@ export default function CyberpunkLanding() {
               Future-Ready
             </h3>
             <p className="text-slate-400">
-              Built with cutting-edge technology for tomorrow's music
+              Built with cutting-edge technology for tomorrow&apos;s music
             </p>
           </div>
         </div>

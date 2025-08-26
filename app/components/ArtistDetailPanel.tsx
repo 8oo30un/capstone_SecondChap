@@ -1,22 +1,34 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 interface SpotifyArtist {
   id: string;
   name: string;
-  images: { url: string; width: number; height: number }[];
-  genres: string[];
+  images?: Array<{
+    url: string;
+    width: number;
+    height: number;
+  }>;
+  genres?: string[];
   popularity: number;
-  external_urls: { spotify: string };
+  external_urls: {
+    spotify: string;
+  };
 }
 
 interface SpotifyAlbum {
   id: string;
   name: string;
+  images?: Array<{
+    url: string;
+    width: number;
+    height: number;
+  }>;
   release_date: string;
-  images: { url: string; width: number; height: number }[];
-  external_urls: { spotify: string };
+  external_urls: {
+    spotify: string;
+  };
 }
 
 interface ArtistDetailPanelProps {
@@ -33,13 +45,7 @@ export default function ArtistDetailPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (artistId) {
-      fetchArtistData();
-    }
-  }, [artistId]);
-
-  const fetchArtistData = async () => {
+  const fetchArtistData = useCallback(async () => {
     if (!artistId) return;
 
     try {
@@ -71,7 +77,13 @@ export default function ArtistDetailPanel({
     } finally {
       setLoading(false);
     }
-  };
+  }, [artistId]);
+
+  useEffect(() => {
+    if (artistId) {
+      fetchArtistData();
+    }
+  }, [artistId, fetchArtistData]);
 
   if (!artistId) return null;
 

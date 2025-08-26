@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 
+
 export type DropItem = {
   id: string; // Prisma 자동 생성 ID
   spotifyId: string; // Spotify의 실제 ID (필수)
@@ -23,7 +24,6 @@ interface FavoriteDropZoneProps {
 
 export default function FavoriteDropZone({
   favorites,
-  setFavorites,
   onDropItem,
   isOpen,
   onToggle,
@@ -84,27 +84,32 @@ export default function FavoriteDropZone({
   };
 
   // 버튼 드래그 중
-  const handleButtonDrag = (e: MouseEvent) => {
-    if (!isDragging) return;
+  // 경고(react-hooks/exhaustive-deps 등) 문제 해결을 위해 useCallback 사용
 
-    e.preventDefault();
-    const newX = e.clientX - dragOffset.x;
-    const newY = e.clientY - dragOffset.y;
+  const handleButtonDrag = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging) return;
 
-    // 화면 경계 내에서만 이동
-    const maxX = window.innerWidth - 64; // 버튼 크기 고려
-    const maxY = window.innerHeight - 64;
+      e.preventDefault();
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
 
-    setButtonPosition({
-      x: Math.max(0, Math.min(newX, maxX)),
-      y: Math.max(0, Math.min(newY, maxY)),
-    });
-  };
+      // 화면 경계 내에서만 이동
+      const maxX = window.innerWidth - 64; // 버튼 크기 고려
+      const maxY = window.innerHeight - 64;
+
+      setButtonPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY)),
+      });
+    },
+    [isDragging, dragOffset]
+  );
 
   // 버튼 드래그 종료
-  const handleButtonDragEnd = () => {
+  const handleButtonDragEnd = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
   // 마우스 이벤트 리스너 등록/해제
   useEffect(() => {
@@ -124,10 +129,10 @@ export default function FavoriteDropZone({
         document.removeEventListener("mouseup", handleButtonDragEnd);
       };
     }
-  }, [isDragging, dragOffset]);
+  }, [isDragging, dragOffset, handleButtonDrag, handleButtonDragEnd]);
 
   // 클릭 이벤트 처리 (드래그 중이 아닐 때만)
-  const handleButtonClick = (e: React.MouseEvent) => {
+  const handleButtonClick = () => {
     if (!isDragging) {
       toggleSidebar();
     }

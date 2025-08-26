@@ -30,8 +30,6 @@ export default function AlbumDetailPanel({
   onClose,
 }: AlbumDetailPanelProps) {
   const [artistInfo, setArtistInfo] = useState<SpotifyArtist | null>(null);
-  const [tracks, setTracks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (album && album.artists && album.artists.length > 0) {
@@ -41,7 +39,6 @@ export default function AlbumDetailPanel({
 
   const fetchArtistInfo = async (artistId: string) => {
     try {
-      setLoading(true);
       const response = await fetch(`/api/spotify/artist?artistId=${artistId}`);
       if (response.ok) {
         const data = await response.json();
@@ -49,8 +46,6 @@ export default function AlbumDetailPanel({
       }
     } catch (error) {
       console.error("아티스트 정보 로드 오류:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -238,46 +233,15 @@ export default function AlbumDetailPanel({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
                   />
                 </svg>
                 <span>트랙 목록</span>
               </h3>
-              <div className="space-y-2">
-                {tracks.length > 0 ? (
-                  tracks.map((track, index) => (
-                    <div
-                      key={track.id}
-                      className="p-4 bg-gradient-to-r from-gray-800/30 to-gray-700/30 rounded-xl border border-gray-600/20 hover:border-green-500/30 transition-all duration-200"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm text-green-400 font-mono w-8">
-                            {(index + 1).toString().padStart(2, "0")}
-                          </span>
-                          <span className="text-white font-medium">
-                            {track.name}
-                          </span>
-                        </div>
-                        <button className="p-2 text-green-400 hover:text-white hover:bg-green-500/20 rounded-lg transition-all duration-200">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">
-                      트랙 정보를 불러오는 중입니다...
-                    </p>
-                  </div>
-                )}
+              <div className="text-center py-8">
+                <p className="text-gray-500">
+                  트랙 정보를 불러오는 중입니다...
+                </p>
               </div>
             </div>
           </div>
