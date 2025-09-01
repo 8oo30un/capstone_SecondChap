@@ -1,0 +1,42 @@
+import { Suspense } from "react";
+import ClientHomePage from "./components/ClientHomePage";
+import Skeleton from "./components/Skeleton";
+
+// 서버에서 초기 데이터 로드 (SSR)
+async function getInitialData() {
+  try {
+    const response = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+      }/api/spotify/search-or-new-releases?country=KR&genre=&query=`,
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) {
+      console.error("Server-side data fetch failed:", response.status);
+      return { albums: [], artists: [] };
+    }
+
+    const data = await response.json();
+    console.log("Server-side data loaded:", {
+      albumsCount: data.albums?.length || 0,
+      artistsCount: data.artists?.length || 0,
+    });
+
+    return data;
+  } catch (error) {
+    console.error("Server-side data fetch error:", error);
+    return { albums: [], artists: [] };
+  }
+}
+
+export default async function HomePage() {
+  // 서버에서 초기 데이터 로드
+  const initialData = await getInitialData();
+
+  return (
+    <Suspense fallback={<Skeleton variant="album" />}>
+      <ClientHomePage initialData={initialData} />
+    </Suspense>
+  );
+}

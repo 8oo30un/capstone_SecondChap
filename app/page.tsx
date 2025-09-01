@@ -9,6 +9,7 @@ import Skeleton from "./components/Skeleton";
 import FavoriteDropZone, { DropItem } from "./components/FavoriteDropZone";
 import CyberpunkLogin from "./components/CyberpunkLogin";
 import CyberpunkLanding from "./components/CyberpunkLanding";
+import Toast, { ToastType } from "./components/Toast";
 
 type Album = {
   id: string; // 내부 ID (25자)
@@ -49,7 +50,33 @@ export default function HomePage() {
     total: 0,
     message: "",
   });
+
+  // 토스트 상태
+  const [toast, setToast] = useState<{
+    isVisible: boolean;
+    message: string;
+    type: ToastType;
+  }>({
+    isVisible: false,
+    message: "",
+    type: "info",
+  });
+
   // 관련 아티스트 상태 제거됨
+
+  // 토스트 표시 함수
+  const showToast = useCallback((message: string, type: ToastType = "info") => {
+    setToast({
+      isVisible: true,
+      message,
+      type,
+    });
+  }, []);
+
+  // 토스트 닫기 함수
+  const closeToast = useCallback(() => {
+    setToast((prev) => ({ ...prev, isVisible: false }));
+  }, []);
 
   // 출시일 계산 함수
   const getReleaseDateInfo = useCallback((releaseDate: string) => {
@@ -462,11 +489,15 @@ export default function HomePage() {
           if (Array.isArray(data)) {
             setFavorites(data);
             console.log("Favorites refreshed from database:", data);
+            showToast(
+              `${item.name}이(가) 즐겨찾기에 추가되었습니다!`,
+              "success"
+            );
           }
         }
       } catch (error) {
         console.error("즐겨찾기 추가 오류:", error);
-        alert("즐겨찾기 추가에 실패했습니다.");
+        showToast("즐겨찾기 추가에 실패했습니다.", "error");
       }
     },
     [favorites, session?.user?.id]
@@ -491,12 +522,15 @@ export default function HomePage() {
         if (Array.isArray(data)) {
           setFavorites(data);
           console.log("✅ 수동 새로고침 완료");
+          showToast("즐겨찾기가 새로고침되었습니다.", "success");
         }
       } else {
         console.error("❌ 수동 새로고침 실패:", response.status);
+        showToast("즐겨찾기 새로고침에 실패했습니다.", "error");
       }
     } catch (error) {
       console.error("❌ 수동 새로고침 오류:", error);
+      showToast("즐겨찾기 새로고침에 실패했습니다.", "error");
     }
   }, [session?.user?.id]);
 
@@ -509,7 +543,7 @@ export default function HomePage() {
         return;
       }
 
-      const { type } = favorite;
+      const { type, spotifyId } = favorite;
       const favoriteKey = `${id}-${type}`;
 
       // 이미 삭제 중인 경우 중복 실행 방지
@@ -542,7 +576,7 @@ export default function HomePage() {
 
         const requestBody = {
           type,
-          spotifyId: id,
+          spotifyId: spotifyId,
         };
         console.log("📤 DELETE 요청 본문:", requestBody);
 
@@ -567,10 +601,10 @@ export default function HomePage() {
           // 즉시 UI에서 해당 아이템 제거 (낙관적 업데이트)
           setFavorites((prev) => {
             console.log("🔍 삭제 전 favorites 데이터:", prev);
-            console.log("🔍 삭제하려는 아이템:", { id, type });
+            console.log("🔍 삭제하려는 아이템:", { id, type, spotifyId });
 
             const updated = prev.filter(
-              (fav) => !(fav.spotifyId === id && fav.type === type)
+              (fav) => !(fav.id === id && fav.type === type)
             );
 
             console.log("🔄 즉시 UI 업데이트:", {
@@ -596,15 +630,27 @@ export default function HomePage() {
 
           // 백그라운드 새로고침 비활성화 - 삭제된 데이터가 다시 로드되는 문제 방지
           console.log("🚫 백그라운드 새로고침 비활성화됨 - 데이터 일관성 유지");
+
+          // 삭제 성공 토스트 메시지
+          const deletedItem = favorites.find((fav) => fav.id === id);
+          if (deletedItem) {
+            showToast(
+              `${deletedItem.name}이(가) 즐겨찾기에서 제거되었습니다.`,
+              "success"
+            );
+          }
         } else {
           const errorData = await response.json();
           console.error("❌ 즐겨찾기 제거 API 오류:", errorData);
           console.error("❌ 응답 상태:", response.status);
-          alert(`즐겨찾기 제거에 실패했습니다. (${response.status})`);
+          showToast(
+            `즐겨찾기 제거에 실패했습니다. (${response.status})`,
+            "error"
+          );
         }
       } catch (error) {
         console.error("💥 즐겨찾기 제거 중 예외 발생:", error);
-        alert("즐겨찾기 제거에 실패했습니다.");
+        showToast("즐겨찾기 제거에 실패했습니다.", "error");
       } finally {
         // 삭제 중 상태 해제
         setRemovingFavorites((prev) => {
@@ -1001,7 +1047,7 @@ export default function HomePage() {
         >
           {/* 필터 UI */}
           <div
-            className={`mb-6 p-8 enhanced-cyberpunk-header text-white rounded-2xl backdrop-blur-sm relative overflow-hidden cyberpunk-scanner`}
+            className={`mb-6 p-4 sm:p-6 md:p-8 enhanced-cyberpunk-header text-white rounded-2xl backdrop-blur-sm relative overflow-hidden cyberpunk-scanner`}
           >
             {/* 강화된 사이버펑크 그리드 배경 */}
             <div className="absolute inset-0 enhanced-cyberpunk-grid opacity-15"></div>
@@ -1020,18 +1066,18 @@ export default function HomePage() {
 
             <div className="relative z-10">
               {/* 브랜드 로고 영역 - 고급 사이버펑크 스타일 */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center space-x-6 mb-4">
+              <div className="text-center mb-6 md:mb-8">
+                <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 mb-4">
                   <div className="relative">
-                    <div className="w-20 h-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl flex items-center justify-center border border-cyan-400/30 shadow-2xl">
-                      <span className="text-4xl text-cyan-400 font-black tracking-wider">
+                    <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl flex items-center justify-center border border-cyan-400/30 shadow-2xl">
+                      <span className="text-3xl md:text-4xl text-cyan-400 font-black tracking-wider">
                         S
                       </span>
                     </div>
                     <div className="absolute -inset-1 bg-gradient-to-br from-cyan-400/20 to-transparent rounded-2xl blur opacity-40"></div>
                   </div>
-                  <div className="flex flex-col items-start">
-                    <h1 className="text-6xl md:text-7xl font-black enhanced-main-title tracking-tight">
+                  <div className="flex flex-col items-center md:items-start text-center md:text-left">
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black enhanced-main-title tracking-tight">
                       SecondChap
                     </h1>
                     <div className="inline-flex items-center space-x-2 px-3 py-1.5 enhanced-platform-badge rounded-lg mt-2">
@@ -1046,9 +1092,9 @@ export default function HomePage() {
               </div>
 
               {/* 메인 제목 영역 - 사이버펑크 스타일 */}
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                 <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-bold flex items-center space-x-3">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center space-x-3">
                     {/* <span className="text-4xl cyberpunk-neon-cyan">🎧</span> */}
                     <span className="enhanced-neon-cyan">
                       {searchQuery
@@ -1062,8 +1108,8 @@ export default function HomePage() {
                   {!searchQuery &&
                     favorites.filter((f) => f.type === "artist").length ===
                       0 && (
-                      <div className="cyberpunk-data mt-3 inline-block">
-                        <p className="text-sm font-mono text-cyan-400 cyberpunk-neon">
+                      <div className="cyberpunk-data mt-3 block">
+                        <p className="text-xs sm:text-sm font-mono text-cyan-400 cyberpunk-neon">
                           [SYSTEM] 아티스트를 즐겨찾기에 추가하면 개인 맞춤
                           음악을 추천받을 수 있어요
                         </p>
@@ -1075,9 +1121,9 @@ export default function HomePage() {
                     favorites.filter((f) => f.type === "artist").length > 0 &&
                     loading &&
                     loadingProgress.total > 0 && (
-                      <div className="cyberpunk-data mt-3 inline-block">
-                        <div className="flex items-center space-x-3">
-                          <div className="flex-1 bg-gray-700 rounded-full h-2">
+                      <div className="cyberpunk-data mt-3 block">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                          <div className="flex-1 w-full sm:w-auto bg-gray-700 rounded-full h-2">
                             <div
                               className="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all duration-300"
                               style={{
@@ -1089,21 +1135,21 @@ export default function HomePage() {
                               }}
                             ></div>
                           </div>
-                          <span className="text-sm font-mono text-cyan-400 cyberpunk-neon">
+                          <span className="text-xs sm:text-sm font-mono text-cyan-400 cyberpunk-neon whitespace-nowrap">
                             {loadingProgress.message}
                           </span>
                         </div>
                       </div>
                     )}
                 </div>
-                <div className="flex items-center space-x-4">
+                <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
                   {/* 사이버펑크 음악 통계 */}
-                  <div className="hidden md:block text-right">
-                    <div className="px-4 py-3 enhanced-gradient-dark backdrop-blur-sm rounded-xl">
+                  <div className="block text-center sm:text-right">
+                    <div className="px-3 py-2 sm:px-4 sm:py-3 enhanced-gradient-dark backdrop-blur-sm rounded-xl">
                       <div className="text-xs text-slate-300/80 font-medium tracking-wider uppercase mb-1">
                         Favorite Artists
                       </div>
-                      <div className="text-xl font-bold enhanced-neon-cyan">
+                      <div className="text-lg sm:text-xl font-bold enhanced-neon-cyan">
                         {favorites.filter((f) => f.type === "artist").length}명
                       </div>
                     </div>
@@ -1114,7 +1160,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="px-6 mb-6">
+          <div className="px-4 sm:px-6 mb-6">
             <div className="grid grid-cols-1 gap-4">
               <div className="col-span-1">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
@@ -1122,7 +1168,7 @@ export default function HomePage() {
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                  <div className="relative glass-card dark:glass-card-dark p-4 rounded-xl futuristic-3d neon-glow dark:neon-glow-dark">
+                  <div className="relative glass-card dark:glass-card-dark p-3 sm:p-4 rounded-xl futuristic-3d neon-glow dark:neon-glow-dark">
                     <div className="relative">
                       <input
                         type="text"
@@ -1137,11 +1183,11 @@ export default function HomePage() {
                             : "";
                           setSearchQuery(v);
                         }}
-                        className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 rounded-lg px-4 py-3 text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 pr-12"
+                        className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 pr-10 sm:pr-12"
                       />
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                      <div className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                         <svg
-                          className="w-5 h-5"
+                          className="w-4 h-4 sm:w-5 sm:h-5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -1976,6 +2022,14 @@ export default function HomePage() {
         <ArtistDetailPanel
           artistId={selectedArtistId}
           onClose={() => setSelectedArtistId(null)}
+        />
+
+        {/* 토스트 메시지 */}
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.isVisible}
+          onClose={closeToast}
         />
       </div>
     </div>
