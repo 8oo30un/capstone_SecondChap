@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     // 환경 변수 확인
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-    
+
     console.log("🔍 Artist-Albums API - 환경 변수 확인:", {
       hasClientId: !!clientId,
       hasClientSecret: !!clientSecret,
@@ -57,10 +57,12 @@ export async function GET(request: NextRequest) {
     if (!clientId || !clientSecret) {
       console.error("❌ Spotify 환경 변수 누락");
       return NextResponse.json(
-        { 
+        {
           error: "Spotify credentials not configured",
-          details: "SPOTIFY_CLIENT_ID와 SPOTIFY_CLIENT_SECRET 환경 변수가 설정되지 않았습니다.",
-          solution: "Vercel 대시보드에서 환경 변수를 설정하거나 로컬에서 .env.local 파일을 생성하세요."
+          details:
+            "SPOTIFY_CLIENT_ID와 SPOTIFY_CLIENT_SECRET 환경 변수가 설정되지 않았습니다.",
+          solution:
+            "Vercel 대시보드에서 환경 변수를 설정하거나 로컬에서 .env.local 파일을 생성하세요.",
         },
         { status: 500 }
       );
@@ -96,7 +98,7 @@ export async function GET(request: NextRequest) {
 
     // 아티스트의 앨범 목록 가져오기 (최신순으로 정렬)
     const albumsResponse = await fetch(
-      `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=50`,
+      `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single,compilation&limit=50`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -106,11 +108,12 @@ export async function GET(request: NextRequest) {
 
     if (!albumsResponse.ok) {
       const errorText = await albumsResponse.text();
-      console.error(`Spotify API error: ${albumsResponse.status}`, {
+      console.error(`Spotify API error for artist ${artistId}:`, {
         status: albumsResponse.status,
         statusText: albumsResponse.statusText,
         error: errorText,
         artistId: artistId,
+        headers: Object.fromEntries(albumsResponse.headers.entries()),
       });
 
       // 429 에러 (Rate Limit) 특별 처리
@@ -130,7 +133,7 @@ export async function GET(request: NextRequest) {
 
         // 재시도
         const retryResponse = await fetch(
-          `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=50`,
+          `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single,compilation&limit=50`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -208,6 +211,16 @@ export async function GET(request: NextRequest) {
     }
 
     const albumsData = await albumsResponse.json();
+
+    console.log(`✅ Successfully fetched albums for artist ${artistId}:`, {
+      totalAlbums: albumsData.items?.length || 0,
+      albums: albumsData.items?.slice(0, 5).map((album: SpotifyAlbum) => ({
+        name: album.name,
+        release_date: album.release_date,
+        album_type: album.album_type,
+        total_tracks: album.total_tracks,
+      })),
+    });
 
     // 앨범 데이터 정리 및 정렬
     const albums: SpotifyAlbum[] = albumsData.items

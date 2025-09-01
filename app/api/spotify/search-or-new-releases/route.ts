@@ -416,15 +416,12 @@ export async function GET(req: Request) {
           }
         }
       } else {
-        // 즐겨찾기된 아티스트가 없는 경우 기본 신곡 발매
-        const newReleasesRes = await fetch(
-          `https://api.spotify.com/v1/browse/new-releases?limit=50`,
-          { headers: { Authorization: `Bearer ${accessToken}` } }
-        );
-        if (newReleasesRes.ok) {
-          const newReleasesData = await newReleasesRes.json();
-          allAlbums.push(...(newReleasesData.albums?.items || []));
-        }
+        // 즐겨찾기된 아티스트가 없는 경우
+        console.log("즐겨찾기된 아티스트가 없어 빈 결과를 반환합니다.");
+        // 검색 API에서는 new-releases를 가져오지 않음
+        // 즐겨찾기 아티스트가 없을 때는 빈 배열 반환
+        albums = [];
+        return NextResponse.json({ albums: [], artists: [] });
       }
 
       // 2. 발매일 기준 필터 완화 (최근 3년)
@@ -438,7 +435,7 @@ export async function GET(req: Request) {
       });
 
       console.log(`Total albums before filtering: ${allAlbums.length}`);
-      console.log(`Recent albums (1 year): ${recentAlbums.length}`);
+      console.log(`Recent albums (3 years): ${recentAlbums.length}`);
       console.log(`Favorite artist IDs: ${favoriteIds.join(", ")}`);
 
       // 3. 가중치 기반 정렬 (즐겨찾기 아티스트 우선, 최신순)
