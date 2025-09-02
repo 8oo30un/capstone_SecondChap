@@ -89,12 +89,12 @@ export default function ArtistDetailPanel({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-end">
-      <aside className="w-96 h-full bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl border-l border-purple-500/30 shadow-2xl flex flex-col">
+      <aside className="w-96 h-full bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl border-l border-gray-500/30 shadow-2xl flex flex-col">
         {/* 헤더 */}
         <div className="p-6 border-b border-purple-500/30 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-indigo-600/20 flex-shrink-0">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/30">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -111,7 +111,7 @@ export default function ArtistDetailPanel({
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">아티스트 정보</h2>
-                <p className="text-sm text-purple-300">Artist Details</p>
+                <p className="text-sm text-gray-300">Artist Details</p>
               </div>
             </div>
             <button
@@ -147,10 +147,8 @@ export default function ArtistDetailPanel({
           <div className="p-6 space-y-0">
             {loading ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-purple-300">
-                  아티스트 정보를 불러오는 중...
-                </p>
+                <div className="w-16 h-16 mx-auto mb-4 border-4 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-gray-300">아티스트 정보를 불러오는 중...</p>
               </div>
             ) : error ? (
               <div className="text-center py-12">
@@ -183,15 +181,15 @@ export default function ArtistDetailPanel({
                         alt={artist.name}
                         width={200}
                         height={200}
-                        className="rounded-full shadow-2xl shadow-purple-500/30 border-4 border-purple-500/30 hover:scale-105 transition-transform duration-300"
+                        className="rounded-full shadow-2xl shadow-gray-500/30 border-4 border-gray-500/30 hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
-                      <div className="w-48 h-48 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white text-6xl font-bold shadow-2xl shadow-purple-500/30 border-4 border-purple-500/30">
+                      <div className="w-48 h-48 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center text-white text-6xl font-bold shadow-2xl shadow-gray-500/30 border-4 border-gray-500/30">
                         {artist.name.charAt(0)}
                       </div>
                     )}
                     {/* 인기도 표시 */}
-                    <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-gray-600 to-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                       {artist.popularity}%
                     </div>
                   </div>
@@ -199,7 +197,7 @@ export default function ArtistDetailPanel({
 
                 {/* 아티스트 이름 */}
                 <div className="text-center">
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent mb-2">
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 drop-shadow-[0_0_10px_rgba(139,92,246,0.6)]">
                     {artist.name}
                   </h1>
                 </div>
@@ -221,7 +219,7 @@ export default function ArtistDetailPanel({
                 {/* 통계 정보 */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-xl border border-gray-600/30 text-center">
-                    <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/30">
                       <svg
                         className="w-6 h-6 text-white"
                         fill="none"
@@ -239,12 +237,12 @@ export default function ArtistDetailPanel({
                     <p className="text-2xl font-bold text-white">
                       {artist.popularity}
                     </p>
-                    <p className="text-sm text-purple-300">인기도</p>
+                    <p className="text-sm text-gray-300">인기도</p>
                   </div>
                   <div className="p-4 bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-xl border border-gray-600/30 text-center">
-                    <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/30">
                       <svg
-                        className="w-6 h-6 text-white"
+                        className="w-6 h-6 text-white drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -260,12 +258,12 @@ export default function ArtistDetailPanel({
                     <p className="text-2xl font-bold text-white">
                       {albums.length}
                     </p>
-                    <p className="text-sm text-blue-300">앨범 수</p>
+                    <p className="text-sm text-gray-300">앨범 수</p>
                   </div>
                 </div>
 
                 {/* Spotify 링크 */}
-                <div className="text-center">
+                <div className="text-center mt-8 mb-8">
                   <a
                     href={artist.external_urls?.spotify}
                     target="_blank"
@@ -288,7 +286,7 @@ export default function ArtistDetailPanel({
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
                       <svg
-                        className="w-5 h-5 text-purple-400"
+                        className="w-5 h-5 text-gray-400"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -306,7 +304,7 @@ export default function ArtistDetailPanel({
                       {albums.slice(0, 10).map((album) => (
                         <div
                           key={album.id}
-                          className="p-4 bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-xl border border-gray-600/30 hover:border-purple-500/30 transition-all duration-200"
+                          className="p-4 bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-xl border border-gray-600/30 hover:border-gray-500/30 transition-all duration-200"
                         >
                           <div className="flex items-center space-x-3">
                             {album.images?.[0]?.url ? (
@@ -318,7 +316,7 @@ export default function ArtistDetailPanel({
                                 className="rounded-lg border border-gray-600/30"
                               />
                             ) : (
-                              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                              <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">
                                 🎵
                               </div>
                             )}
@@ -326,7 +324,7 @@ export default function ArtistDetailPanel({
                               <h4 className="text-sm font-semibold text-white truncate">
                                 {album.name}
                               </h4>
-                              <p className="text-xs text-purple-300">
+                              <p className="text-xs text-gray-300">
                                 {new Date(album.release_date).getFullYear()}
                               </p>
                             </div>

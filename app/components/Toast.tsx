@@ -41,7 +41,7 @@ export default function Toast({
       case "error":
         return "bg-gradient-to-r from-red-500 to-pink-600 border-red-400/30";
       case "info":
-        return "bg-gradient-to-r from-blue-500 to-purple-600 border-blue-400/30";
+        return "bg-gradient-to-r from-gray-600 to-gray-800 border-gray-400/30";
       default:
         return "bg-gradient-to-r from-gray-600 to-gray-700 border-gray-500/30";
     }

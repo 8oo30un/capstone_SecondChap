@@ -973,7 +973,7 @@ export default function HomePage() {
   if (!session) return <CyberpunkLanding />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <div className="max-w-7xl xl:max-w-7xl 2xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-12">
         {/* 음표 배경 패턴 */}
         <div className="music-notes-bg dark:music-notes-bg-dark absolute inset-0 pointer-events-none"></div>
@@ -1006,13 +1006,13 @@ export default function HomePage() {
             {/* 미니멀한 사이버펑크 배경 요소들 */}
             <div className="absolute inset-0 pointer-events-none">
               {/* 우측 상단 미묘한 글로우 효과 */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-cyan-400/20 to-transparent rounded-full blur-xl"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-cyan-400/30 to-transparent rounded-full blur-xl"></div>
 
               {/* 좌측 하단 미묘한 글로우 효과 */}
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-magenta-400/20 to-transparent rounded-full blur-xl"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-400/30 to-transparent rounded-full blur-xl"></div>
 
               {/* 중앙 미묘한 그라데이션 오버레이 */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-cyan-400/5 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-cyan-400/10 to-transparent"></div>
             </div>
 
             <div className="relative z-10">
@@ -1020,12 +1020,12 @@ export default function HomePage() {
               <div className="text-center mb-6 md:mb-8">
                 <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 mb-4">
                   <div className="relative">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl flex items-center justify-center border border-cyan-400/30 shadow-2xl">
-                      <span className="text-3xl md:text-4xl text-cyan-400 font-black tracking-wider">
+                    <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl flex items-center justify-center border border-cyan-400/50 shadow-2xl shadow-cyan-400/20">
+                      <span className="text-3xl md:text-4xl text-cyan-400 font-black tracking-wider drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
                         S
                       </span>
                     </div>
-                    <div className="absolute -inset-1 bg-gradient-to-br from-cyan-400/20 to-transparent rounded-2xl blur opacity-40"></div>
+                    <div className="absolute -inset-1 bg-gradient-to-br from-cyan-400/30 to-transparent rounded-2xl blur opacity-60"></div>
                   </div>
                   <div className="flex flex-col items-center md:items-start text-center md:text-left">
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black enhanced-main-title tracking-tight">
@@ -1076,7 +1076,7 @@ export default function HomePage() {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
                           <div className="flex-1 w-full sm:w-auto bg-gray-700 rounded-full h-2">
                             <div
-                              className="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all duration-300 shadow-lg shadow-cyan-400/30"
                               style={{
                                 width: `${
                                   (loadingProgress.current /
@@ -1118,7 +1118,7 @@ export default function HomePage() {
                   🎵 음악 검색
                 </label>
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                   <div className="relative glass-card dark:glass-card-dark p-3 sm:p-4 rounded-xl futuristic-3d neon-glow dark:neon-glow-dark">
                     <div className="relative">
                       <input
@@ -1134,7 +1134,7 @@ export default function HomePage() {
                             : "";
                           setSearchQuery(v);
                         }}
-                        className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 pr-10 sm:pr-12"
+                        className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-50 focus:shadow-lg focus:shadow-cyan-400/20 transition-all duration-300 pr-10 sm:pr-12"
                       />
                       <div className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                         <svg
@@ -1717,7 +1717,7 @@ export default function HomePage() {
                                     {/* 즐겨찾기 아티스트 표시 */}
                                     {isFavoriteArtist && (
                                       <div className="absolute top-2 left-2 z-10">
-                                        <div className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg border border-white/20 backdrop-blur-sm">
+                                        <div className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg border border-emerald-400/30 backdrop-blur-sm shadow-emerald-400/30">
                                           <div className="flex items-center gap-1">
                                             <svg
                                               className="w-3 h-3"
@@ -1809,14 +1809,14 @@ export default function HomePage() {
                                             }-${crypto.randomUUID()}`}
                                             className={`${
                                               isFavorite
-                                                ? "inline-flex items-center gap-1 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold"
+                                                ? "inline-flex items-center gap-1 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent font-semibold drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]"
                                                 : ""
                                             }`}
                                           >
                                             {a.name}
                                             {isFavorite && (
                                               <svg
-                                                className="w-3 h-3 text-purple-600"
+                                                className="w-3 h-3 text-emerald-400 drop-shadow-[0_0_4px_rgba(16,185,129,0.8)]"
                                                 fill="currentColor"
                                                 viewBox="0 0 20 20"
                                               >
@@ -1938,7 +1938,7 @@ export default function HomePage() {
                                 searchInput.focus();
                               }
                             }}
-                            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50"
                           >
                             아티스트 검색하기
                           </button>

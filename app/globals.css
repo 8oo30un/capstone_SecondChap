@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+  --foreground: #ededed;
 }
 
-@theme inline {
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -14,7 +14,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: linear-gradient(
+      135deg,
+      #0a0a0a 0%,
+      #1a1a1a 50%,
+      #0a0a0a 100%
+    );
     --foreground: #ededed;
   }
 }
@@ -23,6 +28,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
 }
 
 /* 스크롤바 숨김 스타일 */
@@ -173,22 +179,22 @@ body {
 
 /* 웹사이트 특색 스타일링 */
 .music-gradient-bg {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
 }
 
 .music-gradient-bg-dark {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
 }
 
 .music-pattern {
   background-image: radial-gradient(
       circle at 25% 25%,
-      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 0%,
       transparent 50%
     ),
     radial-gradient(
       circle at 75% 75%,
-      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.03) 0%,
       transparent 50%
     );
 }
@@ -196,12 +202,12 @@ body {
 .music-pattern-dark {
   background-image: radial-gradient(
       circle at 25% 25%,
-      rgba(102, 126, 234, 0.1) 0%,
+      rgba(255, 255, 255, 0.08) 0%,
       transparent 50%
     ),
     radial-gradient(
       circle at 75% 75%,
-      rgba(118, 75, 162, 0.05) 0%,
+      rgba(255, 255, 255, 0.04) 0%,
       transparent 50%
     );
 }
@@ -213,29 +219,29 @@ body {
 }
 
 .glass-card-dark {
-  background: rgba(26, 26, 46, 0.8);
+  background: rgba(26, 26, 26, 0.8);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .music-shadow {
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .music-shadow-dark {
-  box-shadow: 0 8px 32px rgba(26, 26, 46, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .music-border {
   border: 2px solid transparent;
   background: linear-gradient(white, white) padding-box,
-    linear-gradient(135deg, #667eea, #764ba2) border-box;
+    linear-gradient(135deg, #1a1a1a, #2d2d2d) border-box;
 }
 
 .music-border-dark {
   border: 2px solid transparent;
-  background: linear-gradient(#1a1a2e, #1a1a2e) padding-box,
-    linear-gradient(135deg, #667eea, #764ba2) border-box;
+  background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+    linear-gradient(135deg, #1a1a1a, #2d2d2d) border-box;
 }
 
 /* 음표 배경 패턴 */
@@ -245,7 +251,7 @@ body {
   top: 20px;
   right: 20px;
   font-size: 2rem;
-  color: rgba(102, 126, 234, 0.1);
+  color: rgba(255, 255, 255, 0.05);
   z-index: -1;
   animation: float 6s ease-in-out infinite;
 }
@@ -256,7 +262,7 @@ body {
   top: 20px;
   right: 20px;
   font-size: 2rem;
-  color: rgba(102, 126, 234, 0.2);
+  color: rgba(255, 255, 255, 0.08);
   z-index: -1;
   animation: float 6s ease-in-out infinite;
 }
@@ -665,11 +671,11 @@ body {
 .enhanced-gradient {
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.1) 0%,
-    rgba(139, 92, 246, 0.1) 25%,
-    rgba(236, 72, 153, 0.1) 50%,
-    rgba(245, 158, 11, 0.1) 75%,
-    rgba(6, 182, 212, 0.1) 100%
+    rgba(26, 26, 26, 0.1) 0%,
+    rgba(45, 45, 45, 0.1) 25%,
+    rgba(26, 26, 26, 0.1) 50%,
+    rgba(45, 45, 45, 0.1) 75%,
+    rgba(26, 26, 26, 0.1) 100%
   );
   background-size: 400% 400%;
   animation: enhancedGradientShift 8s ease infinite;
@@ -678,11 +684,11 @@ body {
 .enhanced-gradient-dark {
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.2) 0%,
-    rgba(139, 92, 246, 0.2) 25%,
-    rgba(236, 72, 153, 0.2) 50%,
-    rgba(245, 158, 11, 0.2) 75%,
-    rgba(6, 182, 212, 0.2) 100%
+    rgba(10, 10, 10, 0.2) 0%,
+    rgba(26, 26, 26, 0.2) 25%,
+    rgba(10, 10, 10, 0.2) 50%,
+    rgba(26, 26, 26, 0.2) 75%,
+    rgba(10, 10, 10, 0.2) 100%
   );
   background-size: 400% 400%;
   animation: enhancedGradientShift 8s ease infinite;
@@ -691,11 +697,11 @@ body {
 .enhanced-gradient-light {
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.05) 0%,
-    rgba(139, 92, 246, 0.05) 25%,
-    rgba(236, 72, 153, 0.05) 50%,
-    rgba(245, 158, 11, 0.05) 75%,
-    rgba(6, 182, 212, 0.05) 100%
+    rgba(26, 26, 26, 0.05) 0%,
+    rgba(45, 45, 45, 0.05) 25%,
+    rgba(26, 26, 26, 0.05) 50%,
+    rgba(45, 45, 45, 0.05) 75%,
+    rgba(26, 26, 26, 0.05) 100%
   );
   background-size: 400% 400%;
   animation: enhancedGradientShift 8s ease infinite;
@@ -706,15 +712,15 @@ body {
 
 .enhanced-gradient-light:hover {
   transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(6, 182, 212, 0.15),
-    0 10px 20px rgba(139, 92, 246, 0.1), 0 0 0 1px rgba(6, 182, 212, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 10px 20px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.08) 0%,
-    rgba(139, 92, 246, 0.08) 25%,
-    rgba(236, 72, 153, 0.08) 50%,
-    rgba(245, 158, 11, 0.08) 75%,
-    rgba(6, 182, 212, 0.08) 100%
+    rgba(26, 26, 26, 0.08) 0%,
+    rgba(45, 45, 45, 0.08) 25%,
+    rgba(26, 26, 26, 0.08) 50%,
+    rgba(45, 45, 45, 0.08) 75%,
+    rgba(26, 26, 26, 0.08) 100%
   );
 }
 
@@ -782,11 +788,11 @@ body {
 .enhanced-cyberpunk-header {
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.15) 0%,
-    rgba(139, 92, 246, 0.25) 25%,
-    rgba(236, 72, 153, 0.35) 50%,
-    rgba(139, 92, 246, 0.25) 75%,
-    rgba(6, 182, 212, 0.15) 100%
+    rgba(26, 26, 26, 0.8) 0%,
+    rgba(45, 45, 45, 0.9) 25%,
+    rgba(26, 26, 26, 0.8) 50%,
+    rgba(45, 45, 45, 0.9) 75%,
+    rgba(26, 26, 26, 0.8) 100%
   );
   background-size: 400% 400%;
   animation: enhancedGradientShift 8s ease infinite;
@@ -885,11 +891,11 @@ body {
 .enhanced-gradient-album {
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.04) 0%,
-    rgba(139, 92, 246, 0.08) 25%,
-    rgba(236, 72, 153, 0.12) 50%,
-    rgba(139, 92, 246, 0.08) 75%,
-    rgba(6, 182, 212, 0.04) 100%
+    rgba(26, 26, 26, 0.04) 0%,
+    rgba(45, 45, 45, 0.08) 25%,
+    rgba(26, 26, 26, 0.12) 50%,
+    rgba(45, 45, 45, 0.08) 75%,
+    rgba(26, 26, 26, 0.04) 100%
   );
   background-size: 400% 400%;
   animation: enhancedGradientShift 15s ease infinite;
@@ -928,11 +934,11 @@ body {
 .enhanced-gradient-artist {
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.04) 0%,
-    rgba(139, 92, 246, 0.08) 25%,
-    rgba(236, 72, 153, 0.12) 50%,
-    rgba(139, 92, 246, 0.08) 75%,
-    rgba(6, 182, 212, 0.04) 100%
+    rgba(26, 26, 26, 0.04) 0%,
+    rgba(45, 45, 45, 0.08) 25%,
+    rgba(26, 26, 26, 0.12) 50%,
+    rgba(45, 45, 45, 0.08) 75%,
+    rgba(26, 26, 26, 0.04) 100%
   );
   background-size: 400% 400%;
   animation: enhancedGradientShift 15s ease infinite;
@@ -998,11 +1004,11 @@ body {
 .enhanced-gradient-album {
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.04) 0%,
-    rgba(139, 92, 246, 0.08) 25%,
-    rgba(236, 72, 153, 0.12) 50%,
-    rgba(139, 92, 246, 0.08) 75%,
-    rgba(6, 182, 212, 0.04) 100%
+    rgba(26, 26, 26, 0.04) 0%,
+    rgba(45, 45, 45, 0.08) 25%,
+    rgba(26, 26, 26, 0.12) 50%,
+    rgba(45, 45, 45, 0.08) 75%,
+    rgba(26, 26, 26, 0.04) 100%
   );
   background-size: 400% 400%;
   animation: enhancedGradientShift 15s ease infinite;
@@ -1068,11 +1074,11 @@ body {
 .enhanced-favorite-card {
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.02) 0%,
-    rgba(139, 92, 246, 0.04) 25%,
-    rgba(236, 72, 153, 0.06) 50%,
-    rgba(139, 92, 246, 0.04) 75%,
-    rgba(6, 182, 212, 0.02) 100%
+    rgba(26, 26, 26, 0.02) 0%,
+    rgba(45, 45, 45, 0.04) 25%,
+    rgba(26, 26, 26, 0.06) 50%,
+    rgba(45, 45, 45, 0.04) 75%,
+    rgba(26, 26, 26, 0.02) 100%
   );
   background-size: 400% 400%;
   animation: enhancedGradientShift 15s ease infinite;
@@ -1081,8 +1087,7 @@ body {
   overflow: hidden;
   transform-style: preserve-3d;
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.08),
-    0 2px 10px rgba(139, 92, 246, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 2px 10px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(5px);
 }
 
@@ -1301,11 +1306,11 @@ body {
   .enhanced-cyberpunk-header {
     background: linear-gradient(
       135deg,
-      rgba(6, 182, 212, 0.15) 0%,
-      rgba(139, 92, 246, 0.25) 25%,
-      rgba(236, 72, 153, 0.35) 50%,
-      rgba(139, 92, 246, 0.25) 75%,
-      rgba(6, 182, 212, 0.15) 100%
+      rgba(26, 26, 26, 0.6) 0%,
+      rgba(45, 45, 45, 0.7) 25%,
+      rgba(26, 26, 26, 0.6) 50%,
+      rgba(45, 45, 45, 0.7) 75%,
+      rgba(26, 26, 26, 0.6) 100%
     );
     border: none;
   }
@@ -1343,11 +1348,11 @@ body {
   .enhanced-gradient-artist {
     background: linear-gradient(
       135deg,
-      rgba(6, 182, 212, 0.08) 0%,
-      rgba(139, 92, 246, 0.12) 25%,
-      rgba(236, 72, 153, 0.16) 50%,
-      rgba(139, 92, 246, 0.12) 75%,
-      rgba(6, 182, 212, 0.08) 100%
+      rgba(26, 26, 26, 0.08) 0%,
+      rgba(45, 45, 45, 0.12) 25%,
+      rgba(26, 26, 26, 0.16) 50%,
+      rgba(45, 45, 45, 0.12) 75%,
+      rgba(26, 26, 26, 0.08) 100%
     );
   }
 
@@ -1367,11 +1372,11 @@ body {
   .enhanced-gradient-album {
     background: linear-gradient(
       135deg,
-      rgba(6, 182, 212, 0.08) 0%,
-      rgba(139, 92, 246, 0.12) 25%,
-      rgba(236, 72, 153, 0.16) 50%,
-      rgba(139, 92, 246, 0.12) 75%,
-      rgba(6, 182, 212, 0.08) 100%
+      rgba(26, 26, 26, 0.08) 0%,
+      rgba(45, 45, 45, 0.12) 25%,
+      rgba(26, 26, 26, 0.16) 50%,
+      rgba(45, 45, 45, 0.12) 75%,
+      rgba(26, 26, 26, 0.08) 100%
     );
   }
 
@@ -1391,14 +1396,13 @@ body {
   .enhanced-favorite-card {
     background: linear-gradient(
       135deg,
-      rgba(6, 182, 212, 0.08) 0%,
-      rgba(139, 92, 246, 0.12) 25%,
-      rgba(236, 72, 153, 0.16) 50%,
-      rgba(139, 92, 246, 0.12) 75%,
-      rgba(6, 182, 212, 0.08) 100%
+      rgba(26, 26, 26, 0.08) 0%,
+      rgba(45, 45, 45, 0.12) 25%,
+      rgba(26, 26, 26, 0.16) 50%,
+      rgba(45, 45, 45, 0.12) 75%,
+      rgba(26, 26, 26, 0.08) 100%
     );
-    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.1),
-      0 2px 10px rgba(139, 92, 246, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 10px rgba(0, 0, 0, 0.15);
   }
 
   .enhanced-favorite-card:hover {
@@ -1516,11 +1520,11 @@ body {
   .enhanced-cyberpunk-header {
     background: linear-gradient(
       135deg,
-      rgba(6, 182, 212, 0.15) 0%,
-      rgba(139, 92, 246, 0.25) 25%,
-      rgba(236, 72, 153, 0.35) 50%,
-      rgba(139, 92, 246, 0.25) 75%,
-      rgba(6, 182, 212, 0.15) 100%
+      rgba(26, 26, 26, 0.6) 0%,
+      rgba(45, 45, 45, 0.7) 25%,
+      rgba(26, 26, 26, 0.6) 50%,
+      rgba(45, 45, 45, 0.7) 75%,
+      rgba(26, 26, 26, 0.6) 100%
     );
     border: none;
   }
@@ -1558,11 +1562,11 @@ body {
   .enhanced-gradient-artist {
     background: linear-gradient(
       135deg,
-      rgba(6, 182, 212, 0.08) 0%,
-      rgba(139, 92, 246, 0.12) 25%,
-      rgba(236, 72, 153, 0.16) 50%,
-      rgba(139, 92, 246, 0.12) 75%,
-      rgba(6, 182, 212, 0.08) 100%
+      rgba(26, 26, 26, 0.08) 0%,
+      rgba(45, 45, 45, 0.12) 25%,
+      rgba(26, 26, 26, 0.16) 50%,
+      rgba(45, 45, 45, 0.12) 75%,
+      rgba(26, 26, 26, 0.08) 100%
     );
   }
 
@@ -1582,11 +1586,11 @@ body {
   .enhanced-gradient-album {
     background: linear-gradient(
       135deg,
-      rgba(6, 182, 212, 0.08) 0%,
-      rgba(139, 92, 246, 0.12) 25%,
-      rgba(236, 72, 153, 0.16) 50%,
-      rgba(139, 92, 246, 0.12) 75%,
-      rgba(6, 182, 212, 0.08) 100%
+      rgba(26, 26, 26, 0.08) 0%,
+      rgba(45, 45, 45, 0.12) 25%,
+      rgba(26, 26, 26, 0.16) 50%,
+      rgba(45, 45, 45, 0.12) 75%,
+      rgba(26, 26, 26, 0.08) 100%
     );
   }
 
@@ -1606,14 +1610,13 @@ body {
   .enhanced-favorite-card {
     background: linear-gradient(
       135deg,
-      rgba(6, 182, 212, 0.08) 0%,
-      rgba(139, 92, 246, 0.12) 25%,
-      rgba(236, 72, 153, 0.16) 50%,
-      rgba(139, 92, 246, 0.12) 75%,
-      rgba(6, 182, 212, 0.08) 100%
+      rgba(26, 26, 26, 0.08) 0%,
+      rgba(45, 45, 45, 0.12) 25%,
+      rgba(26, 26, 26, 0.16) 50%,
+      rgba(45, 45, 45, 0.12) 75%,
+      rgba(26, 26, 26, 0.08) 100%
     );
-    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.1),
-      0 2px 10px rgba(139, 92, 246, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 10px rgba(0, 0, 0, 0.15);
   }
 
   .enhanced-favorite-card:hover {
@@ -1700,16 +1703,15 @@ body {
 }
 
 @media (min-width: 1536px) {
-  .2xl\:max-w-8xl {
+  .\32 xl\:max-w-8xl {
     max-width: 88rem;
   }
-
-  .2xl\:px-12 {
+  .\32 xl\:px-12 {
     padding-left: 3rem;
     padding-right: 3rem;
   }
 
-  .2xl\:gap-10 {
+  .\32xl\:gap-10 {
     gap: 2.5rem;
   }
 }

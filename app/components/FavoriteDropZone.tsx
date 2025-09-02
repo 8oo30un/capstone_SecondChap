@@ -168,7 +168,7 @@ export default function FavoriteDropZone({
 
         {/* 호버 시 안내 토스트 메시지 */}
         <div className="absolute left-16 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          <div className="bg-gray-900/95 text-white px-4 py-2 rounded-lg shadow-xl border border-blue-500/30 backdrop-blur-sm whitespace-nowrap">
+          <div className="bg-gray-900/95 text-white px-4 py-2 rounded-lg shadow-xl border border-gray-500/30 backdrop-blur-sm whitespace-nowrap">
             <div className="flex items-center space-x-2">
               <svg
                 className="w-4 h-4 text-blue-400"
@@ -188,7 +188,7 @@ export default function FavoriteDropZone({
 
       {/* 사이드바 */}
       <div
-        className={`fixed left-0 top-0 h-full w-96 bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl border-r border-blue-500/30 shadow-2xl transition-transform duration-300 ease-in-out z-40 flex flex-col ${
+        className={`fixed left-0 top-0 h-full w-96 bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl border-r border-gray-500/30 shadow-2xl transition-transform duration-300 ease-in-out z-40 flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -196,7 +196,7 @@ export default function FavoriteDropZone({
         <div className="p-6 border-b border-blue-500/30 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -219,7 +219,7 @@ export default function FavoriteDropZone({
             <div className="flex items-center space-x-2">
               <button
                 onClick={refreshFavorites}
-                className="p-2 text-blue-300 hover:text-white hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+                className="p-2 text-gray-300 hover:text-white hover:bg-gray-500/20 rounded-lg transition-all duration-200"
                 aria-label="즐겨찾기 새로고침"
               >
                 <svg
@@ -271,7 +271,7 @@ export default function FavoriteDropZone({
             <div
               className={`relative border-2 border-dashed rounded-2xl p-8 text-center backdrop-blur-sm transition-all duration-300 ${
                 isDragOver
-                  ? "border-blue-400 bg-blue-500/10 shadow-lg shadow-blue-500/20"
+                  ? "border-blue-400 bg-blue-500/10 shadow-lg shadow-blue-500/30 scale-105"
                   : "border-gray-600/50 bg-gray-800/30 hover:border-blue-400/50 hover:bg-blue-500/5"
               }`}
               onDragOver={handleDragOver}
@@ -292,25 +292,67 @@ export default function FavoriteDropZone({
               </div>
 
               <div className="relative z-10">
-                <div className="w-16 h-16 mx-auto mb-4 text-blue-400">
-                  <svg
-                    className="w-full h-full"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                <div
+                  className={`w-16 h-16 mx-auto mb-4 text-blue-400 relative group ${
+                    isDragOver ? "animate-pulse" : ""
+                  }`}
+                >
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-lg transition-opacity duration-300 ${
+                      isDragOver
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    }`}
+                  ></div>
+                  <div
+                    className={`relative transform transition-all duration-500 ${
+                      isDragOver
+                        ? "scale-125 rotate-12 -translate-y-3"
+                        : "group-hover:scale-110 group-hover:rotate-6 group-hover:-translate-y-2"
+                    }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                    />
-                  </svg>
+                    <svg
+                      className={`w-full h-full transition-all duration-500 ${
+                        isDragOver
+                          ? "drop-shadow-[0_0_30px_rgba(59,130,246,1)]"
+                          : "drop-shadow-[0_0_15px_rgba(59,130,246,0.6)] group-hover:drop-shadow-[0_0_25px_rgba(59,130,246,0.8)]"
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      style={{
+                        filter: isDragOver
+                          ? "drop-shadow(0 0 20px rgba(59, 130, 246, 1))"
+                          : "drop-shadow(0 0 10px rgba(59, 130, 246, 0.6))",
+                        transform: isDragOver
+                          ? "perspective(1000px) rotateX(10deg) rotateY(10deg)"
+                          : "perspective(1000px) rotateX(0deg) rotateY(0deg)",
+                        transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                      }}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                      />
+                    </svg>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3
+                  className={`text-lg font-semibold mb-2 transition-all duration-300 ${
+                    isDragOver
+                      ? "text-blue-400 scale-105 drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                      : "text-white"
+                  }`}
+                >
                   여기에 드래그하여 즐겨찾기 추가
                 </h3>
-                <p className="text-sm text-gray-400">
+                <p
+                  className={`text-sm transition-all duration-300 ${
+                    isDragOver ? "text-blue-300 scale-105" : "text-gray-400"
+                  }`}
+                >
                   아티스트나 앨범을 이곳에 드래그하면 즐겨찾기에 추가됩니다
                 </p>
               </div>
@@ -381,7 +423,7 @@ export default function FavoriteDropZone({
 
                     <div className="flex items-center space-x-3">
                       <div className="relative">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/30">
                           {item.type === "artist" ? "A" : "L"}
                         </div>
                         {item.image && (
