@@ -1606,7 +1606,25 @@ export default function HomePage() {
                           }}
                           className="enhanced-favorite-card backdrop-blur-sm rounded-lg p-3 flex flex-col cursor-pointer relative hover:bg-slate-700/80 transition-all duration-300 hover:scale-105"
                         >
-                          {/* 즐겨찾기 하트 버튼 */}
+                          {/* 즐겨찾기 표시 */}
+                          <div className="absolute top-2 right-2 z-10">
+                            <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg border border-red-400/30 backdrop-blur-sm">
+                              <div className="flex items-center gap-1">
+                                <svg
+                                  className="w-3 h-3"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                <span>즐겨찾기</span>
+                              </div>
+                            </div>
+                          </div>
 
                           <div className="enhanced-album-image-container w-full aspect-square">
                             {fav.image ? (
@@ -1667,15 +1685,6 @@ export default function HomePage() {
                                 return dateB.getTime() - dateA.getTime(); // 최신 날짜부터 정렬
                               })
                               .map((album) => {
-                                const isFavoriteArtist = album.artists.some(
-                                  (artist) =>
-                                    favorites.some(
-                                      (fav) =>
-                                        fav.type === "artist" &&
-                                        fav.spotifyId === artist.id
-                                    )
-                                );
-
                                 return (
                                   <div
                                     key={`search-album-${
@@ -1713,27 +1722,6 @@ export default function HomePage() {
                                     className="enhanced-favorite-card backdrop-blur-sm rounded-lg p-3 flex flex-col cursor-pointer relative hover:bg-slate-700/80 transition-all duration-300 group"
                                   >
                                     {/* 드래그 앤 드롭으로만 즐겨찾기 가능 - 하트 버튼 제거 */}
-
-                                    {/* 즐겨찾기 아티스트 표시 */}
-                                    {isFavoriteArtist && (
-                                      <div className="absolute top-2 left-2 z-10">
-                                        <div className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg border border-emerald-400/30 backdrop-blur-sm shadow-emerald-400/30">
-                                          <div className="flex items-center gap-1">
-                                            <svg
-                                              className="w-3 h-3"
-                                              fill="currentColor"
-                                              viewBox="0 0 20 20"
-                                            >
-                                              <path
-                                                fillRule="evenodd"
-                                                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                              />
-                                            </svg>
-                                            <span>즐겨찾기</span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )}
 
                                     {/* NEW 배지 및 출시일 정보 */}
                                     {album.release_date && (
