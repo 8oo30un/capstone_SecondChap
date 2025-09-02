@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       "mosaic.scdn.co",
       "wrapped-images.spotifycdn.com",
       "lh3.googleusercontent.com",
+      "via.placeholder.com",
     ],
   },
   env: {

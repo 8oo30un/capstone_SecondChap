@@ -11,7 +11,22 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
-    "test:debug": "playwright test --debug"
+    "test:debug": "playwright test --debug",
+    "test:login": "playwright test tests/simple-login.spec.ts --headed",
+    "test:login-ui": "playwright test tests/simple-login.spec.ts --ui",
+    "test:login-debug": "playwright test tests/simple-login.spec.ts --debug",
+    "test:mock": "playwright test tests/mock-login.spec.ts --headed",
+    "test:mock-ui": "playwright test tests/mock-login.spec.ts --ui",
+    "test:auth-debug": "playwright test tests/auth-debug.spec.ts --headed",
+    "test:auth-debug-ui": "playwright test tests/auth-debug.spec.ts --ui",
+    "test:dashboard": "playwright test tests/dashboard-tests.spec.ts --headed",
+    "test:dashboard-ui": "playwright test tests/dashboard-tests.spec.ts --ui",
+    "test:session": "playwright test tests/session-storage.spec.ts --headed",
+    "test:session-ui": "playwright test tests/session-storage.spec.ts --ui",
+    "test:real-login": "playwright test tests/real-login-dashboard.spec.ts --headed",
+    "test:real-login-ui": "playwright test tests/real-login-dashboard.spec.ts --ui",
+    "test:mock-dashboard": "playwright test tests/mock-dashboard.spec.ts --headed",
+    "test:mock-dashboard-ui": "playwright test tests/mock-dashboard.spec.ts --ui"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

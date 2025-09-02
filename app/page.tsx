@@ -1710,7 +1710,7 @@ export default function HomePage() {
                                       setSelectedAlbum(enrichedAlbum);
                                       setSelectedArtistId(null);
                                     }}
-                                    className="enhanced-favorite-card backdrop-blur-sm rounded-lg p-3 flex flex-col cursor-pointer relative hover:bg-slate-700/80 transition-all duration-300"
+                                    className="enhanced-favorite-card backdrop-blur-sm rounded-lg p-3 flex flex-col cursor-pointer relative hover:bg-slate-700/80 transition-all duration-300 group"
                                   >
                                     {/* 드래그 앤 드롭으로만 즐겨찾기 가능 - 하트 버튼 제거 */}
 
@@ -1750,7 +1750,7 @@ export default function HomePage() {
                                               `🆕 NEW 배지 표시: ${album.name} (${releaseInfo.daysAgo}일 전)`
                                             );
                                             return (
-                                              <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg border border-white/20 backdrop-blur-sm">
+                                              <div className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg border border-white/20 backdrop-blur-sm">
                                                 <div className="flex items-center gap-1">
                                                   <svg
                                                     className="w-3 h-3"
@@ -1873,16 +1873,6 @@ export default function HomePage() {
                                         })()}
                                       </div>
                                     )}
-
-                                    <a
-                                      href={album.external_urls.spotify}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-block mt-2 px-4 py-2 text-sm font-semibold text-white enhanced-play-button rounded-lg transition-all duration-300"
-                                      aria-label={`Play ${album.name} on Spotify`}
-                                    >
-                                      ▶ 재생하기
-                                    </a>
                                   </div>
                                 );
                               })}
