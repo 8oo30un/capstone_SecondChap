@@ -10,6 +10,7 @@ import FavoriteDropZone, { DropItem } from "./components/FavoriteDropZone";
 import CyberpunkLogin from "./components/CyberpunkLogin";
 import CyberpunkLanding from "./components/CyberpunkLanding";
 import Toast, { ToastType } from "./components/Toast";
+import FavoriteArtistCarousel from "./components/FavoriteArtistCarousel";
 
 type Album = {
   id: string; // 내부 ID (25자)
@@ -41,6 +42,11 @@ export default function HomePage() {
   const [isComposing, setIsComposing] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
+
+  // selectedAlbum 상태 변경 디버깅
+  useEffect(() => {
+    console.log("🎵 selectedAlbum 상태 변경:", selectedAlbum);
+  }, [selectedAlbum]);
   const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<DropItem[]>([]);
@@ -1244,7 +1250,7 @@ export default function HomePage() {
                                   );
                                 }}
                                 onClick={() => handleArtistClick(artist.id)}
-                                className="group relative rounded-lg overflow-hidden shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:shadow-xl"
+                                className="group relative rounded-lg overflow-hidden shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2"
                               >
                                 {artist.image ? (
                                   <Image
@@ -1355,7 +1361,7 @@ export default function HomePage() {
                                     );
                                   }
                                 }}
-                                className="group relative rounded-lg overflow-hidden shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:shadow-xl"
+                                className="group relative rounded-lg overflow-hidden shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2"
                               >
                                 {album.images[0]?.url ? (
                                   <Image
@@ -1492,7 +1498,7 @@ export default function HomePage() {
                                 );
                                 handleArtistClick(fav.id);
                               }}
-                              className="group relative rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400/50 w-full enhanced-favorite-card transition-all duration-300"
+                              className="group relative rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400/50 w-full enhanced-favorite-card transition-all duration-300 hover:scale-105 hover:-translate-y-2"
                             >
                               <div className="enhanced-artist-image-container w-full h-20 sm:h-24">
                                 {artistImage ? (
@@ -1604,27 +1610,9 @@ export default function HomePage() {
                               console.error("즐겨찾기 앨범 클릭 에러:", error);
                             }
                           }}
-                          className="enhanced-favorite-card backdrop-blur-sm rounded-lg p-3 flex flex-col cursor-pointer relative hover:bg-slate-700/80 transition-all duration-300 hover:scale-105"
+                          className="enhanced-favorite-card backdrop-blur-sm rounded-lg p-3 flex flex-col cursor-pointer relative transition-all duration-300 hover:scale-105 hover:-translate-y-2"
                         >
                           {/* 즐겨찾기 표시 */}
-                          <div className="absolute top-2 right-2 z-10">
-                            <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full font-semibold shadow-lg border border-red-400/30 backdrop-blur-sm">
-                              <div className="flex items-center gap-1">
-                                <svg
-                                  className="w-3 h-3"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                <span>즐겨찾기</span>
-                              </div>
-                            </div>
-                          </div>
 
                           <div className="enhanced-album-image-container w-full aspect-square">
                             {fav.image ? (
@@ -1663,20 +1651,18 @@ export default function HomePage() {
                   favorites.filter((f) => f.type === "artist").length > 0 ? (
                     <>
                       <div className="px-6 pb-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-bold enhanced-favorite-title">
-                            🎵 즐겨찾기 아티스트 신곡
-                          </h3>
-                          <span className="text-sm text-slate-400">
-                            {albums.length}개 앨범 (출시일 순)
-                          </span>
-                        </div>
+                        <div className="enhanced-gradient-album p-6 rounded-2xl mb-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-bold enhanced-favorite-title">
+                              🎵 즐겨찾기 아티스트 신곡
+                            </h3>
+                            <span className="text-sm text-slate-400">
+                              {albums.length}개 앨범 (출시일 순)
+                            </span>
+                          </div>
 
-                        {loading ? (
-                          <Skeleton variant="album" count={5} />
-                        ) : albums.length > 0 ? (
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3">
-                            {albums
+                          <FavoriteArtistCarousel
+                            albums={albums
                               .sort((a, b) => {
                                 if (!a.release_date || !b.release_date)
                                   return 0;
@@ -1684,194 +1670,43 @@ export default function HomePage() {
                                 const dateB = new Date(b.release_date);
                                 return dateB.getTime() - dateA.getTime(); // 최신 날짜부터 정렬
                               })
-                              .map((album) => {
-                                return (
-                                  <div
-                                    key={`search-album-${
-                                      album.id
-                                    }-${crypto.randomUUID()}`}
-                                    draggable
-                                    onDragStart={(e) => {
-                                      e.dataTransfer.setData(
-                                        "application/json",
-                                        JSON.stringify({
-                                          id: album.id,
-                                          spotifyId: album.id, // Spotify ID 추가
-                                          name: album.name,
-                                          image: album.images?.[0]?.url || "",
-                                          type: "album",
-                                        })
-                                      );
-                                    }}
-                                    onClick={() => {
-                                      const enrichedAlbum = {
-                                        ...album,
-                                        artists: album.artists.map(
-                                          (artist: {
-                                            id: string;
-                                            name: string;
-                                          }) => ({
-                                            ...artist,
-                                            image: "",
-                                          })
-                                        ),
-                                      };
-                                      setSelectedAlbum(enrichedAlbum);
-                                      setSelectedArtistId(null);
-                                    }}
-                                    className="enhanced-favorite-card backdrop-blur-sm rounded-lg p-3 flex flex-col cursor-pointer relative hover:bg-slate-700/80 transition-all duration-300 group"
-                                  >
-                                    {/* 드래그 앤 드롭으로만 즐겨찾기 가능 - 하트 버튼 제거 */}
-
-                                    {/* NEW 배지 및 출시일 정보 */}
-                                    {album.release_date && (
-                                      <div className="absolute top-2 left-2 z-10">
-                                        {(() => {
-                                          const releaseInfo =
-                                            getReleaseDateInfo(
-                                              album.release_date
-                                            );
-
-                                          // 30일 이내 출시된 앨범에만 NEW 배지 표시
-                                          if (releaseInfo.isNew) {
-                                            console.log(
-                                              `🆕 NEW 배지 표시: ${album.name} (${releaseInfo.daysAgo}일 전)`
-                                            );
-                                            return (
-                                              <div className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg border border-white/20 backdrop-blur-sm">
-                                                <div className="flex items-center gap-1">
-                                                  <svg
-                                                    className="w-3 h-3"
-                                                    fill="currentColor"
-                                                    viewBox="0 0 20 20"
-                                                  >
-                                                    <path
-                                                      fillRule="evenodd"
-                                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                      clipRule="evenodd"
-                                                    />
-                                                  </svg>
-                                                  <span>NEW</span>
-                                                </div>
-                                              </div>
-                                            );
-                                          }
-
-                                          // 30일 초과된 앨범도 로그로 확인
-                                          if (
-                                            releaseInfo.daysAgo &&
-                                            releaseInfo.daysAgo > 30
-                                          ) {
-                                          }
-
-                                          return null;
-                                        })()}
-                                      </div>
-                                    )}
-
-                                    {album.images?.[0]?.url ? (
-                                      <Image
-                                        src={album.images[0].url}
-                                        alt={album.name}
-                                        width={300}
-                                        height={300}
-                                        className="rounded-md w-full h-auto object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full aspect-square rounded-md bg-gray-200 dark:bg-gray-700" />
-                                    )}
-                                    <h2 className="mt-3 text-lg font-bold text-gray-900 dark:text-gray-100">
-                                      {album.name}
-                                    </h2>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
-                                      {album.artists.map((a) => {
-                                        const isFavorite = favorites.some(
-                                          (fav) =>
-                                            fav.type === "artist" &&
-                                            fav.spotifyId === a.id
-                                        );
-                                        return (
-                                          <span
-                                            key={`search-artist-${
-                                              a.id
-                                            }-${crypto.randomUUID()}`}
-                                            className={`${
-                                              isFavorite
-                                                ? "inline-flex items-center gap-1 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent font-semibold drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]"
-                                                : ""
-                                            }`}
-                                          >
-                                            {a.name}
-                                            {isFavorite && (
-                                              <svg
-                                                className="w-3 h-3 text-emerald-400 drop-shadow-[0_0_4px_rgba(16,185,129,0.8)]"
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                              >
-                                                <path
-                                                  fillRule="evenodd"
-                                                  d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                                />
-                                              </svg>
-                                            )}
-                                          </span>
-                                        );
-                                      })}
-                                    </p>
-
-                                    {/* 출시일 정보 */}
-                                    {album.release_date && (
-                                      <div className="mt-2 text-xs text-gray-600 dark:text-gray-500">
-                                        {(() => {
-                                          const releaseInfo =
-                                            getReleaseDateInfo(
-                                              album.release_date
-                                            );
-                                          if (releaseInfo.daysAgo !== null) {
-                                            return (
-                                              <div className="flex items-center gap-2">
-                                                <svg
-                                                  className="w-3 h-3 text-gray-400"
-                                                  fill="currentColor"
-                                                  viewBox="0 0 20 20"
-                                                >
-                                                  <path
-                                                    fillRule="evenodd"
-                                                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                                                    clipRule="evenodd"
-                                                  />
-                                                </svg>
-                                                <span>
-                                                  {releaseInfo.formattedDate}
-                                                </span>
-                                                <span className="text-gray-400">
-                                                  •
-                                                </span>
-                                                <span>
-                                                  {releaseInfo.daysAgo === 0
-                                                    ? "오늘 출시"
-                                                    : releaseInfo.daysAgo === 1
-                                                    ? "어제 출시"
-                                                    : `${releaseInfo.daysAgo}일 전 출시`}
-                                                </span>
-                                              </div>
-                                            );
-                                          }
-                                          return null;
-                                        })()}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                          </div>
-                        ) : (
-                          <div className="text-center py-8">
-                            <p className="text-gray-500 dark:text-gray-400">
-                              아직 앨범이 로드되지 않았습니다.
-                            </p>
-                          </div>
-                        )}
+                              .map((album) => ({
+                                ...album,
+                                spotifyId: album.id,
+                              }))}
+                            onAlbumClick={(album) => {
+                              console.log("🎵 캐러셀에서 앨범 클릭:", album);
+                              const enrichedAlbum = {
+                                ...album,
+                                release_date: album.release_date || "",
+                                images: (album.images || []).map((img) => ({
+                                  url: img.url,
+                                  width: 300,
+                                  height: 300,
+                                })),
+                                external_urls: {
+                                  spotify: `https://open.spotify.com/album/${album.spotifyId}`,
+                                },
+                              };
+                              setSelectedAlbum(enrichedAlbum);
+                            }}
+                            onDragStart={(e, album) => {
+                              e.dataTransfer.setData(
+                                "application/json",
+                                JSON.stringify({
+                                  id: album.id,
+                                  spotifyId: album.spotifyId,
+                                  name: album.name,
+                                  type: "album",
+                                  image: album.images?.[0]?.url,
+                                })
+                              );
+                            }}
+                            favorites={favorites}
+                            getReleaseDateInfo={getReleaseDateInfo}
+                            loading={loading}
+                          />
+                        </div>
                       </div>
 
                       {/* 앨범 즐겨찾기 섹션은 즐겨찾기 아티스트 바로 밑으로 이동됨 */}
