@@ -44,16 +44,12 @@ export default function ArtistDetailPanel({
 }: ArtistDetailPanelProps) {
   const [artist, setArtist] = useState<SpotifyArtist | null>(null);
   const [albums, setAlbums] = useState<SpotifyAlbum[]>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   const fetchArtistData = useCallback(async () => {
     if (!artistId) return;
 
     try {
-      setLoading(true);
-      setIsLoading(true);
       setError(null);
 
       // 아티스트 정보와 앨범을 병렬로 가져오기
@@ -78,9 +74,6 @@ export default function ArtistDetailPanel({
     } catch (error) {
       console.error("아티스트 데이터 로드 오류:", error);
       setError("데이터를 불러오는 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
-      setIsLoading(false);
     }
   }, [artistId]);
 
@@ -168,19 +161,7 @@ export default function ArtistDetailPanel({
           }}
         >
           <div className="p-6 space-y-0">
-            {isLoading ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-purple-300 font-medium">
-                  아티스트 정보를 불러오는 중...
-                </p>
-              </div>
-            ) : loading ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 border-4 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-gray-300">아티스트 정보를 불러오는 중...</p>
-              </div>
-            ) : error ? (
+            {error ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 mx-auto mb-4 text-red-400">
                   <svg

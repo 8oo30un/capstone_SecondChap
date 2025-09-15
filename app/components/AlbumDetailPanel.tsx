@@ -34,15 +34,10 @@ export default function AlbumDetailPanel({
 }: AlbumDetailPanelProps) {
   const [artistInfo, setArtistInfo] = useState<SpotifyArtist | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
-  const [tracksLoading, setTracksLoading] = useState(false);
   const [tracksError, setTracksError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (album && album.artists && album.artists.length > 0) {
-      // 로딩 상태 초기화
-      setIsLoading(true);
-      setTracksLoading(true);
       setTracksError(null);
       setArtistInfo(null);
 
@@ -72,14 +67,11 @@ export default function AlbumDetailPanel({
       }
     } catch (error) {
       console.error("아티스트 정보 로드 오류:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const fetchAlbumTracks = async (albumId: string) => {
     try {
-      setTracksLoading(true);
       setTracksError(null);
 
       const response = await fetch(
@@ -96,8 +88,6 @@ export default function AlbumDetailPanel({
     } catch (error) {
       console.error("트랙 목록 로드 오류:", error);
       setTracksError("트랙 목록을 불러오는 중 오류가 발생했습니다.");
-    } finally {
-      setTracksLoading(false);
     }
   };
 
@@ -172,16 +162,6 @@ export default function AlbumDetailPanel({
           }}
         >
           <div className="p-6 space-y-6">
-            {/* 로딩 상태 */}
-            {isLoading && (
-              <div className="text-center py-8">
-                <div className="w-12 h-12 mx-auto mb-4 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-green-300 font-medium">
-                  앨범 정보를 불러오는 중...
-                </p>
-              </div>
-            )}
-
             {/* 앨범 커버 */}
             <div className="text-center">
               <div className="relative inline-block">
@@ -315,12 +295,7 @@ export default function AlbumDetailPanel({
                 <span>트랙 목록 ({tracks.length}곡)</span>
               </h3>
 
-              {tracksLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-green-500 border-t-transparent mx-auto mb-4"></div>
-                  <p className="text-gray-500">트랙 정보를 불러오는 중...</p>
-                </div>
-              ) : tracksError ? (
+              {tracksError ? (
                 <div className="text-center py-8">
                   <p className="text-red-400 mb-2">
                     트랙 목록을 불러올 수 없습니다
