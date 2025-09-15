@@ -11,7 +11,7 @@ import CyberpunkLogin from "./components/CyberpunkLogin";
 import CyberpunkLanding from "./components/CyberpunkLanding";
 import Toast, { ToastType } from "./components/Toast";
 import FavoriteArtistCarousel from "./components/FavoriteArtistCarousel";
-import SpotifyEmbedPlayer from "./components/SpotifyEmbedPlayer";
+import CustomMusicPlayer from "./components/CustomMusicPlayer";
 
 type Album = {
   id: string; // 내부 ID (25자)
@@ -223,26 +223,28 @@ export default function HomePage() {
                   const errorData = await artistAlbumsResponse.json();
                   console.error(`에러 상세:`, errorData);
 
-                  // Spotify 토큰 관련 에러인지 확인
+                  // 음악 API 토큰 관련 에러인지 확인
                   if (
                     errorData.error === "Failed to get Spotify token" ||
                     errorData.error === "Spotify credentials not configured"
                   ) {
-                    console.error(`🔑 Spotify 인증 실패: ${errorData.details}`);
+                    console.error(
+                      `🔑 음악 API 인증 실패: ${errorData.details}`
+                    );
                     // 사용자에게 알림
                     setLoadingProgress({
                       current: 0,
                       total: 0,
-                      message: `❌ Spotify API 인증 실패: ${errorData.details}`,
+                      message: `❌ 음악 API 인증 실패: ${errorData.details}`,
                     });
                   } else if (errorData.error === "Spotify API request failed") {
                     console.error(
-                      `🌐 Spotify API 요청 실패: ${errorData.details}`
+                      `🌐 음악 API 요청 실패: ${errorData.details}`
                     );
                     setLoadingProgress({
                       current: 0,
                       total: 0,
-                      message: `❌ Spotify API 오류: ${errorData.details}`,
+                      message: `❌ 음악 API 오류: ${errorData.details}`,
                     });
                   } else if (
                     errorData.error === "Invalid Spotify artist ID format"
@@ -1314,7 +1316,7 @@ export default function HomePage() {
                                 }}
                                 onClick={async () => {
                                   try {
-                                    // 즐겨찾기 앨범 클릭 시 Spotify API를 통해 실제 앨범 정보 가져오기
+                                    // 즐겨찾기 앨범 클릭 시 음악 API를 통해 실제 앨범 정보 가져오기
                                     if (album.spotifyId) {
                                       const response = await fetch(
                                         `/api/spotify/album?id=${album.spotifyId}`
@@ -1564,7 +1566,7 @@ export default function HomePage() {
                           }}
                           onClick={async () => {
                             try {
-                              // 즐겨찾기 앨범 클릭 시 Spotify API를 통해 실제 앨범 정보 가져오기
+                              // 즐겨찾기 앨범 클릭 시 음악 API를 통해 실제 앨범 정보 가져오기
                               if (fav.spotifyId) {
                                 const response = await fetch(
                                   `/api/spotify/album?id=${fav.spotifyId}`
@@ -1692,12 +1694,14 @@ export default function HomePage() {
                                   spotify: `https://open.spotify.com/album/${album.spotifyId}`,
                                 },
                               };
+
+                              // 앨범 정보 패널이 이미 열려있으면 바로 전환, 아니면 새로 열기
                               setSelectedAlbum(enrichedAlbum);
 
-                              // Spotify Embed Player에서 앨범 재생
+                              // 커스텀 플레이어에서 앨범 재생
                               setSelectedAlbumForPlayer(album.spotifyId);
                               showToast(
-                                "Spotify에서 앨범을 재생합니다!",
+                                "음악 플레이어에서 앨범을 재생합니다!",
                                 "success"
                               );
                             }}
@@ -1777,6 +1781,7 @@ export default function HomePage() {
         </main>
 
         <AlbumDetailPanel
+          key={selectedAlbum?.id || "no-album"}
           album={
             selectedAlbum
               ? {
@@ -1792,32 +1797,79 @@ export default function HomePage() {
               : null
           }
           onClose={() => setSelectedAlbum(null)}
+          onPlayAlbum={(albumId) => {
+            setSelectedAlbumForPlayer(albumId);
+            showToast("음악 플레이어에서 앨범을 재생합니다!", "success");
+          }}
         />
 
         <ArtistDetailPanel
+          key={selectedArtistId || "no-artist"}
           artistId={selectedArtistId}
           onClose={() => setSelectedArtistId(null)}
+          onPlayAlbum={async (albumId) => {
+            try {
+              console.log("🎵 아티스트에서 앨범 재생 시도:", albumId);
+              // 앨범 정보를 가져와서 selectedAlbum 상태에 설정
+              const response = await fetch(`/api/spotify/album?id=${albumId}`);
+              if (response.ok) {
+                const albumData = await response.json();
+                console.log("📀 앨범 데이터 응답:", albumData);
+
+                // Spotify API 응답에는 success 속성이 없고, 직접 앨범 데이터를 반환
+                if (albumData.id && albumData.name) {
+                  console.log("✅ 앨범 정보 설정:", albumData);
+                  setSelectedAlbum(albumData);
+                } else if (albumData.error) {
+                  console.error("❌ 앨범 데이터 로드 실패:", {
+                    error: albumData.error,
+                    message: albumData.message,
+                    fullResponse: albumData,
+                  });
+                } else {
+                  console.error("❌ 예상치 못한 응답 형식:", albumData);
+                }
+              } else {
+                const errorText = await response.text();
+                console.error("❌ API 응답 실패:", {
+                  status: response.status,
+                  statusText: response.statusText,
+                  body: errorText,
+                });
+              }
+            } catch (error) {
+              console.error("❌ 앨범 정보 로드 실패:", error);
+            }
+            setSelectedAlbumForPlayer(albumId);
+            showToast("음악 플레이어에서 앨범을 재생합니다!", "success");
+          }}
         />
 
-        {/* Spotify Embed Player */}
+        {/* 커스텀 음악 플레이어 */}
         {selectedAlbumForPlayer && (
           <div className="fixed bottom-4 left-4 right-4 z-50">
-            <SpotifyEmbedPlayer
-              albumId={selectedAlbumForPlayer}
-              className="max-w-4xl mx-auto"
-            />
-            <button
-              onClick={() => setSelectedAlbumForPlayer(null)}
-              className="absolute top-2 right-2 p-2 bg-gray-800/80 hover:bg-gray-700/90 text-white rounded-full transition-colors duration-200"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
+            {(() => {
+              console.log("🎵 CustomMusicPlayer에 전달되는 props:", {
+                albumId: selectedAlbumForPlayer,
+                albumName: selectedAlbum?.name || "알 수 없는 앨범",
+                albumImage: selectedAlbum?.images?.[0]?.url,
+                artistName:
+                  selectedAlbum?.artists?.[0]?.name || "알 수 없는 아티스트",
+                selectedAlbum: selectedAlbum,
+              });
+              return (
+                <CustomMusicPlayer
+                  albumId={selectedAlbumForPlayer}
+                  albumName={selectedAlbum?.name || "알 수 없는 앨범"}
+                  albumImage={selectedAlbum?.images?.[0]?.url}
+                  artistName={
+                    selectedAlbum?.artists?.[0]?.name || "알 수 없는 아티스트"
+                  }
+                  className="max-w-4xl mx-auto"
+                  onClose={() => setSelectedAlbumForPlayer(null)}
                 />
-              </svg>
-            </button>
+              );
+            })()}
           </div>
         )}
 

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "music",
     "discovery",
     "AI",
-    "spotify",
+    "music",
     "recommendations",
     "cyberpunk",
   ],

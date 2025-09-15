@@ -24,23 +24,44 @@ interface SpotifyArtist {
 interface AlbumDetailPanelProps {
   album: SpotifyAlbum | null;
   onClose: () => void;
+  onPlayAlbum?: (albumId: string) => void;
 }
 
 export default function AlbumDetailPanel({
   album,
   onClose,
+  onPlayAlbum,
 }: AlbumDetailPanelProps) {
   const [artistInfo, setArtistInfo] = useState<SpotifyArtist | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [tracksLoading, setTracksLoading] = useState(false);
   const [tracksError, setTracksError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (album && album.artists && album.artists.length > 0) {
+      // 로딩 상태 초기화
+      setIsLoading(true);
+      setTracksLoading(true);
+      setTracksError(null);
+      setArtistInfo(null);
+
       fetchArtistInfo(album.artists[0].id);
       fetchAlbumTracks(album.id);
     }
   }, [album]);
+
+  // ESC 키로 닫기
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   const fetchArtistInfo = async (artistId: string) => {
     try {
@@ -51,6 +72,8 @@ export default function AlbumDetailPanel({
       }
     } catch (error) {
       console.error("아티스트 정보 로드 오류:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,8 +109,14 @@ export default function AlbumDetailPanel({
     (Date.now() - releaseDate.getTime()) / (1000 * 60 * 60 * 24) <= 30;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-end">
-      <aside className="w-96 h-full bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl border-l border-green-500/30 shadow-2xl flex flex-col">
+    <div
+      className="fixed inset-0 bg-black/20 z-50 flex justify-end cursor-pointer"
+      onClick={onClose}
+    >
+      <aside
+        className="w-96 h-full bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl border-l border-green-500/30 shadow-2xl flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* 헤더 */}
         <div className="p-6 border-b border-green-500/30 bg-gradient-to-r from-green-600/20 via-emerald-600/20 to-teal-600/20 flex-shrink-0">
           <div className="flex items-center justify-between mb-4">
@@ -143,6 +172,16 @@ export default function AlbumDetailPanel({
           }}
         >
           <div className="p-6 space-y-6">
+            {/* 로딩 상태 */}
+            {isLoading && (
+              <div className="text-center py-8">
+                <div className="w-12 h-12 mx-auto mb-4 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-green-300 font-medium">
+                  앨범 정보를 불러오는 중...
+                </p>
+              </div>
+            )}
+
             {/* 앨범 커버 */}
             <div className="text-center">
               <div className="relative inline-block">
@@ -238,10 +277,12 @@ export default function AlbumDetailPanel({
 
             {/* 재생 버튼 */}
             <div className="text-center">
-              <a
-                href={album.external_urls?.spotify}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => {
+                  if (onPlayAlbum && album) {
+                    onPlayAlbum(album.id);
+                  }
+                }}
                 className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-green-500/25 hover:scale-105 transition-all duration-300"
               >
                 <svg
@@ -251,8 +292,8 @@ export default function AlbumDetailPanel({
                 >
                   <path d="M8 5v14l11-7z" />
                 </svg>
-                <span>Spotify에서 재생</span>
-              </a>
+                <span>음악 플레이어에서 재생</span>
+              </button>
             </div>
 
             {/* 트랙 목록 */}
@@ -330,10 +371,12 @@ export default function AlbumDetailPanel({
                             .toFixed(0)
                             .padStart(2, "0")}
                         </span>
-                        <a
-                          href={track.external_urls.spotify}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => {
+                            if (onPlayAlbum && album) {
+                              onPlayAlbum(album.id);
+                            }
+                          }}
                           className="text-green-400 hover:text-green-300 transition-colors"
                         >
                           <svg
@@ -343,7 +386,7 @@ export default function AlbumDetailPanel({
                           >
                             <path d="M8 5v14l11-7z" />
                           </svg>
-                        </a>
+                        </button>
                       </div>
                     </div>
                   ))}

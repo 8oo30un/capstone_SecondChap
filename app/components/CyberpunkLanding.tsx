@@ -78,7 +78,8 @@ export default function CyberpunkLanding() {
           <p className="text-xl text-slate-400 leading-relaxed max-w-3xl mx-auto">
             AI-powered music discovery platform that learns your taste and
             introduces you to artists and albums you never knew you needed.
-            Connect with Spotify and start your musical journey into the future.
+            Connect with our music platform and start your musical journey into
+            the future.
           </p>
         </div>
 

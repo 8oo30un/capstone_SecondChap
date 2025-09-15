@@ -238,7 +238,6 @@ https://dndkit.com/
 
 - gettingn good reading documentation
   ai for test
-  youtube
 
 ## 즐겨찾기 섹션에 Drap and Drop 기능을 구현.
 
