@@ -41,6 +41,7 @@ export default function CustomMusicPlayer({
   const [tracksLoading, setTracksLoading] = useState(false);
 
   const progressRef = useRef<HTMLDivElement>(null);
+  const [equalizerBars, setEqualizerBars] = useState<number[]>([]);
 
   // 시뮬레이션된 재생 시간 업데이트
   useEffect(() => {
@@ -58,6 +59,50 @@ export default function CustomMusicPlayer({
     }
     return () => clearInterval(interval);
   }, [isPlaying, duration]);
+
+  // 이퀄라이저 애니메이션 (물결치는 효과)
+  useEffect(() => {
+    let animationId: number;
+    let startTime = 0;
+
+    if (isPlaying) {
+      const animateEqualizer = (timestamp: number) => {
+        if (startTime === 0) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+
+        // 물결치는 패턴을 위한 사인파 기반 계산
+        setEqualizerBars((prevBars) =>
+          prevBars.map((_, index) => {
+            // 각 바마다 다른 주파수와 위상으로 물결 효과
+            const frequency = 0.5 + index * 0.1; // 0.5Hz ~ 1.2Hz
+            const phase = (index * Math.PI) / 4; // 0 ~ 2π 사이의 위상차
+            const amplitude = 30 + index * 5; // 30 ~ 65의 진폭
+            const baseHeight = 20 + index * 3; // 기본 높이
+
+            // 사인파 + 코사인파로 복합적인 물결 효과
+            const sineWave = Math.sin(elapsed * frequency * 0.01 + phase);
+            const cosineWave = Math.cos(
+              elapsed * frequency * 0.007 + phase * 0.8
+            );
+            const combinedWave = (sineWave + cosineWave * 0.5) * amplitude;
+
+            return Math.max(5, baseHeight + combinedWave);
+          })
+        );
+
+        animationId = requestAnimationFrame(animateEqualizer);
+      };
+      animateEqualizer(0);
+    } else {
+      setEqualizerBars(Array.from({ length: 8 }, () => 0));
+    }
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [isPlaying]);
 
   // 실제 트랙 데이터 가져오기
   useEffect(() => {
@@ -173,11 +218,7 @@ export default function CustomMusicPlayer({
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <div className="relative w-12 h-12 flex-shrink-0">
             {albumImage ? (
-              <div
-                className={`w-12 h-12 rounded-lg overflow-hidden ${
-                  isPlaying ? "animate-spin" : ""
-                }`}
-              >
+              <div className="w-12 h-12 rounded-lg overflow-hidden">
                 <Image
                   src={albumImage}
                   alt={albumName}
@@ -188,11 +229,7 @@ export default function CustomMusicPlayer({
                 />
               </div>
             ) : (
-              <div
-                className={`w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center ${
-                  isPlaying ? "animate-pulse" : ""
-                }`}
-              >
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="currentColor"
@@ -202,10 +239,23 @@ export default function CustomMusicPlayer({
                 </svg>
               </div>
             )}
-            {/* 재생 중 표시 */}
+
+            {/* AI 이퀄라이저 */}
             {isPlaying && (
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="absolute -bottom-1 -right-1 flex items-end space-x-0.5">
+                {equalizerBars.map((height, index) => (
+                  <div
+                    key={index}
+                    className="w-0.5 bg-gradient-to-t from-green-400 via-emerald-300 to-green-500 rounded-full transition-all duration-1000 ease-out"
+                    style={{
+                      height: `${Math.max(2, height * 0.3)}px`,
+                      animationDelay: `${index * 150}ms`,
+                      transform: `scaleY(${
+                        1 + Math.sin(Date.now() * 0.002 + index) * 0.1
+                      })`,
+                    }}
+                  />
+                ))}
               </div>
             )}
           </div>
@@ -239,18 +289,14 @@ export default function CustomMusicPlayer({
           {/* 재생/일시정지 */}
           <button
             onClick={togglePlay}
-            className={`p-3 rounded-full text-white transition-all duration-200 hover:scale-105 ${
+            className={`p-3 rounded-full text-white transition-all duration-300 hover:scale-110 ${
               isPlaying
-                ? "bg-gradient-to-r from-green-500 to-emerald-400 shadow-lg shadow-green-500/50 animate-pulse"
-                : "bg-green-500 hover:bg-green-600"
+                ? "bg-gradient-to-r from-green-500 to-emerald-400 shadow-lg shadow-green-500/30 hover:shadow-green-500/50"
+                : "bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/20 hover:shadow-green-500/40"
             }`}
           >
             {isPlaying ? (
-              <svg
-                className="w-6 h-6 animate-pulse"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
               </svg>
             ) : (
@@ -307,6 +353,25 @@ export default function CustomMusicPlayer({
       {/* 확장된 플레이어 영역 */}
       {isExpanded && (
         <div className="px-4 pb-4 space-y-4">
+          {/* AI 이퀄라이저 */}
+          {isPlaying && (
+            <div className="flex items-end justify-center space-x-1 h-16 bg-gray-800/50 rounded-lg p-4">
+              {equalizerBars.map((height, index) => (
+                <div
+                  key={index}
+                  className="w-1 bg-gradient-to-t from-green-400 via-emerald-300 to-green-500 rounded-full transition-all duration-1200 ease-out"
+                  style={{
+                    height: `${Math.max(4, height * 0.6)}px`,
+                    animationDelay: `${index * 120}ms`,
+                    transform: `scaleY(${
+                      1 + Math.sin(Date.now() * 0.0015 + index) * 0.15
+                    })`,
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
           {/* 진행 바 */}
           <div className="space-y-2">
             <div
@@ -315,23 +380,14 @@ export default function CustomMusicPlayer({
               className="w-full h-2 bg-gray-700 rounded-full cursor-pointer hover:h-3 transition-all duration-200 relative overflow-hidden"
             >
               <div
-                className={`h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full relative transition-all duration-300 ${
-                  isPlaying ? "animate-pulse" : ""
-                }`}
+                className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full relative transition-all duration-300"
                 style={{ width: `${progressPercentage}%` }}
               >
-                {/* 재생 중일 때 움직이는 파티클 효과 */}
+                {/* 재생 중일 때 부드러운 글로우 효과 */}
                 {isPlaying && (
-                  <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
-                    <div className="absolute top-0 left-0 w-2 h-full bg-white/30 animate-ping"></div>
-                  </div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-400/50 to-emerald-300/50 animate-pulse"></div>
                 )}
-                <div
-                  className={`absolute right-0 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200 ${
-                    isPlaying ? "animate-bounce" : ""
-                  }`}
-                ></div>
+                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"></div>
               </div>
             </div>
 
