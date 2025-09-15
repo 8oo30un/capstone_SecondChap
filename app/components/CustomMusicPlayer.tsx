@@ -20,13 +20,6 @@ export default function CustomMusicPlayer({
   className = "",
   onClose,
 }: CustomMusicPlayerProps) {
-  // 디버깅을 위한 로그
-  console.log("🎵 CustomMusicPlayer props:", {
-    albumId,
-    albumName,
-    albumImage,
-    artistName,
-  });
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(180);

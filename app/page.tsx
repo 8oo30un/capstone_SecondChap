@@ -48,9 +48,6 @@ export default function HomePage() {
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
 
   // selectedAlbum 상태 변경 디버깅
-  useEffect(() => {
-    console.log("🎵 selectedAlbum 상태 변경:", selectedAlbum);
-  }, [selectedAlbum]);
   const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<DropItem[]>([]);
@@ -391,8 +388,6 @@ export default function HomePage() {
 
   // 중복 제거된 고유한 검색 결과 (이름과 ID 모두 고려)
   const uniqueArtists = useMemo(() => {
-    console.log("🔍 uniqueArtists 생성 - 원본 artists 개수:", artists.length);
-
     // Map을 사용하여 ID별로 최고 품질 아티스트 유지
     const artistMap = new Map();
     const duplicateIds = new Set();
@@ -403,14 +398,7 @@ export default function HomePage() {
         const existing = artistMap.get(artist.id);
         // 이미지가 있는 것을 우선, 둘 다 이미지가 있으면 기존 것 유지
         if (artist.image && !existing.image) {
-          console.log(
-            `🔄 uniqueArtists에서 아티스트 업데이트: ${artist.id} (${artist.name}) - 이미지 추가`
-          );
           artistMap.set(artist.id, artist);
-        } else {
-          console.log(
-            `❌ uniqueArtists에서 아티스트 ID 중복 제거: ${artist.id} (${artist.name})`
-          );
         }
       } else {
         artistMap.set(artist.id, artist);
@@ -418,22 +406,10 @@ export default function HomePage() {
     });
 
     // 중복 ID 요약 로그
-    if (duplicateIds.size > 0) {
-      console.log(
-        `⚠️ uniqueArtists에서 중복된 아티스트 ID 발견: ${Array.from(
-          duplicateIds
-        ).join(", ")}`
-      );
-    }
-
-    const result = Array.from(artistMap.values());
-    console.log("🎯 uniqueArtists 결과 개수:", result.length);
-    return result;
+    return Array.from(artistMap.values());
   }, [artists]);
 
   const uniqueAlbums = useMemo(() => {
-    console.log("🔍 uniqueAlbums 생성 - 원본 albums 개수:", albums.length);
-
     // Map을 사용하여 ID별로 최고 품질 앨범 유지
     const albumMap = new Map();
     const duplicateIds = new Set();
@@ -1809,36 +1785,18 @@ export default function HomePage() {
           onClose={() => setSelectedArtistId(null)}
           onPlayAlbum={async (albumId) => {
             try {
-              console.log("🎵 아티스트에서 앨범 재생 시도:", albumId);
               // 앨범 정보를 가져와서 selectedAlbum 상태에 설정
               const response = await fetch(`/api/spotify/album?id=${albumId}`);
               if (response.ok) {
                 const albumData = await response.json();
-                console.log("📀 앨범 데이터 응답:", albumData);
 
                 // Spotify API 응답에는 success 속성이 없고, 직접 앨범 데이터를 반환
                 if (albumData.id && albumData.name) {
-                  console.log("✅ 앨범 정보 설정:", albumData);
                   setSelectedAlbum(albumData);
-                } else if (albumData.error) {
-                  console.error("❌ 앨범 데이터 로드 실패:", {
-                    error: albumData.error,
-                    message: albumData.message,
-                    fullResponse: albumData,
-                  });
-                } else {
-                  console.error("❌ 예상치 못한 응답 형식:", albumData);
                 }
-              } else {
-                const errorText = await response.text();
-                console.error("❌ API 응답 실패:", {
-                  status: response.status,
-                  statusText: response.statusText,
-                  body: errorText,
-                });
               }
             } catch (error) {
-              console.error("❌ 앨범 정보 로드 실패:", error);
+              console.error("앨범 정보 로드 실패:", error);
             }
             setSelectedAlbumForPlayer(albumId);
             showToast("음악 플레이어에서 앨범을 재생합니다!", "success");
@@ -1848,28 +1806,16 @@ export default function HomePage() {
         {/* 커스텀 음악 플레이어 */}
         {selectedAlbumForPlayer && (
           <div className="fixed bottom-4 left-4 right-4 z-50">
-            {(() => {
-              console.log("🎵 CustomMusicPlayer에 전달되는 props:", {
-                albumId: selectedAlbumForPlayer,
-                albumName: selectedAlbum?.name || "알 수 없는 앨범",
-                albumImage: selectedAlbum?.images?.[0]?.url,
-                artistName:
-                  selectedAlbum?.artists?.[0]?.name || "알 수 없는 아티스트",
-                selectedAlbum: selectedAlbum,
-              });
-              return (
-                <CustomMusicPlayer
-                  albumId={selectedAlbumForPlayer}
-                  albumName={selectedAlbum?.name || "알 수 없는 앨범"}
-                  albumImage={selectedAlbum?.images?.[0]?.url}
-                  artistName={
-                    selectedAlbum?.artists?.[0]?.name || "알 수 없는 아티스트"
-                  }
-                  className="max-w-4xl mx-auto"
-                  onClose={() => setSelectedAlbumForPlayer(null)}
-                />
-              );
-            })()}
+            <CustomMusicPlayer
+              albumId={selectedAlbumForPlayer}
+              albumName={selectedAlbum?.name || "알 수 없는 앨범"}
+              albumImage={selectedAlbum?.images?.[0]?.url}
+              artistName={
+                selectedAlbum?.artists?.[0]?.name || "알 수 없는 아티스트"
+              }
+              className="max-w-4xl mx-auto"
+              onClose={() => setSelectedAlbumForPlayer(null)}
+            />
           </div>
         )}
 

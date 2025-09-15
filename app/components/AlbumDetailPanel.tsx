@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Track } from "@/types/spotify";
 
@@ -36,29 +36,7 @@ export default function AlbumDetailPanel({
   const [tracks, setTracks] = useState<Track[]>([]);
   const [tracksError, setTracksError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (album && album.artists && album.artists.length > 0) {
-      setTracksError(null);
-      setArtistInfo(null);
-
-      fetchArtistInfo(album.artists[0].id);
-      fetchAlbumTracks(album.id);
-    }
-  }, [album]);
-
-  // ESC 키로 닫기
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
-  const fetchArtistInfo = async (artistId: string) => {
+  const fetchArtistInfo = useCallback(async (artistId: string) => {
     try {
       const response = await fetch(`/api/spotify/artist?artistId=${artistId}`);
       if (response.ok) {
@@ -68,9 +46,9 @@ export default function AlbumDetailPanel({
     } catch (error) {
       console.error("아티스트 정보 로드 오류:", error);
     }
-  };
+  }, []);
 
-  const fetchAlbumTracks = async (albumId: string) => {
+  const fetchAlbumTracks = useCallback(async (albumId: string) => {
     try {
       setTracksError(null);
 
@@ -89,7 +67,29 @@ export default function AlbumDetailPanel({
       console.error("트랙 목록 로드 오류:", error);
       setTracksError("트랙 목록을 불러오는 중 오류가 발생했습니다.");
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (album && album.artists && album.artists.length > 0) {
+      setTracksError(null);
+      setArtistInfo(null);
+
+      fetchArtistInfo(album.artists[0].id);
+      fetchAlbumTracks(album.id);
+    }
+  }, [album, fetchArtistInfo, fetchAlbumTracks]);
+
+  // ESC 키로 닫기
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   if (!album) return null;
 
