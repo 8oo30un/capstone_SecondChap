@@ -81,3 +81,59 @@ export async function fetchArtistImage(
   const data = await res.json();
   return data.images?.[0]?.url || "";
 }
+
+// Spotify 플레이어에서 트랙 재생
+export async function playTrack(
+  trackUri: string,
+  deviceId: string,
+  accessToken: string
+): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uris: [trackUri],
+        }),
+      }
+    );
+
+    return res.ok;
+  } catch (error) {
+    console.error("❌ 트랙 재생 실패:", error);
+    return false;
+  }
+}
+
+// Spotify 플레이어에서 앨범 재생
+export async function playAlbum(
+  albumUri: string,
+  deviceId: string,
+  accessToken: string
+): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          context_uri: albumUri,
+        }),
+      }
+    );
+
+    return res.ok;
+  } catch (error) {
+    console.error("❌ 앨범 재생 실패:", error);
+    return false;
+  }
+}

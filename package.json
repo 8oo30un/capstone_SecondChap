@@ -35,7 +35,8 @@
     "next-auth": "^4.24.11",
     "prisma": "^6.14.0",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-spotify-web-playback-sdk": "^3.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

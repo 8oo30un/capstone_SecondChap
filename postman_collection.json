@@ -1,0 +1,461 @@
+{
+  "info": {
+    "name": "SecondChap API Collection",
+    "description": "SecondChap 프로젝트의 모든 API 엔드포인트를 테스트하기 위한 Postman 컬렉션",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Spotify APIs",
+      "item": [
+        {
+          "name": "Get Spotify Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spotify/token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "spotify", "token"]
+            },
+            "description": "Spotify API 액세스 토큰을 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Search or New Releases",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spotify/search-or-new-releases?q=Ed Sheeran&type=artist&country=KR",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "spotify", "search-or-new-releases"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "Ed Sheeran",
+                  "description": "검색 쿼리"
+                },
+                {
+                  "key": "type",
+                  "value": "artist",
+                  "description": "검색 타입 (artist, album)"
+                },
+                {
+                  "key": "country",
+                  "value": "KR",
+                  "description": "국가 코드 (KR, US, JP, GB)"
+                },
+                {
+                  "key": "genre",
+                  "value": "k-pop",
+                  "description": "장르 필터 (선택사항)"
+                },
+                {
+                  "key": "favoriteArtistIds",
+                  "value": "4gzpq5DPGxSnKTe4SA8HAU,1Xyo4u8uXC1ZmMpatF05PJ",
+                  "description": "즐겨찾기된 아티스트 ID들 (쉼표로 구분)"
+                }
+              ]
+            },
+            "description": "Spotify에서 아티스트나 앨범을 검색하거나 즐겨찾기 아티스트의 신곡을 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Album Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spotify/album?id=4gzpq5DPGxSnKTe4SA8HAU",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "spotify", "album"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "4gzpq5DPGxSnKTe4SA8HAU",
+                  "description": "앨범 ID"
+                }
+              ]
+            },
+            "description": "특정 앨범의 상세 정보를 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Album Tracks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spotify/album-tracks?id=4gzpq5DPGxSnKTe4SA8HAU",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "spotify", "album-tracks"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "4gzpq5DPGxSnKTe4SA8HAU",
+                  "description": "앨범 ID"
+                }
+              ]
+            },
+            "description": "특정 앨범의 트랙 목록을 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Artist Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spotify/artist?id=4gzpq5DPGxSnKTe4SA8HAU",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "spotify", "artist"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "4gzpq5DPGxSnKTe4SA8HAU",
+                  "description": "아티스트 ID"
+                }
+              ]
+            },
+            "description": "특정 아티스트의 상세 정보를 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Artist Albums",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/spotify/artist-albums?id=4gzpq5DPGxSnKTe4SA8HAU",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "spotify", "artist-albums"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "4gzpq5DPGxSnKTe4SA8HAU",
+                  "description": "아티스트 ID"
+                }
+              ]
+            },
+            "description": "특정 아티스트의 앨범 목록을 가져옵니다."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Favorites APIs",
+      "item": [
+        {
+          "name": "Get Favorites",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "next-auth.session-token=YOUR_SESSION_TOKEN",
+                "description": "NextAuth 세션 쿠키 (로그인 필요)"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites"]
+            },
+            "description": "사용자의 즐겨찾기 목록을 가져옵니다. (인증 필요)"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Favorite Album",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "next-auth.session-token=YOUR_SESSION_TOKEN",
+                "description": "NextAuth 세션 쿠키 (로그인 필요)"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"album\",\n  \"spotifyId\": \"4gzpq5DPGxSnKTe4SA8HAU\",\n  \"name\": \"÷ (Divide)\",\n  \"image\": \"https://i.scdn.co/image/ab67616d0000b273ba5db46f4b838ef6027e6f96\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites"]
+            },
+            "description": "앨범을 즐겨찾기에 추가합니다. (인증 필요)"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Favorite Artist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "next-auth.session-token=YOUR_SESSION_TOKEN",
+                "description": "NextAuth 세션 쿠키 (로그인 필요)"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"artist\",\n  \"spotifyId\": \"4gzpq5DPGxSnKTe4SA8HAU\",\n  \"name\": \"Ed Sheeran\",\n  \"image\": \"https://i.scdn.co/image/ab6761610000e5eb12a2ef08d00dd7451a6dbed6\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites"]
+            },
+            "description": "아티스트를 즐겨찾기에 추가합니다. (인증 필요)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Favorite",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "next-auth.session-token=YOUR_SESSION_TOKEN",
+                "description": "NextAuth 세션 쿠키 (로그인 필요)"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"album\",\n  \"spotifyId\": \"4gzpq5DPGxSnKTe4SA8HAU\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites"]
+            },
+            "description": "즐겨찾기에서 항목을 삭제합니다. (인증 필요)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication APIs",
+      "item": [
+        {
+          "name": "Get Auth Providers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/providers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "providers"]
+            },
+            "description": "사용 가능한 인증 프로바이더 목록을 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Session",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "next-auth.session-token=YOUR_SESSION_TOKEN",
+                "description": "NextAuth 세션 쿠키"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/session",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "session"]
+            },
+            "description": "현재 사용자의 세션 정보를 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Sign In Page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/signin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "signin"]
+            },
+            "description": "로그인 페이지를 가져옵니다."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test Scenarios",
+      "item": [
+        {
+          "name": "Complete Flow Test",
+          "item": [
+            {
+              "name": "1. Get Spotify Token",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/spotify/token",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "spotify", "token"]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    const response = pm.response.json();",
+                      "    pm.collectionVariables.set('accessToken', response.access_token);",
+                      "    console.log('Spotify token saved:', response.access_token);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "2. Search Korean Music",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/spotify/search-or-new-releases?q=BTS&country=KR&genre=k-pop",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "spotify", "search-or-new-releases"],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "BTS"
+                    },
+                    {
+                      "key": "country",
+                      "value": "KR"
+                    },
+                    {
+                      "key": "genre",
+                      "value": "k-pop"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "3. Get New Releases (No Query)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/spotify/search-or-new-releases?country=KR&favoriteArtistIds=4gzpq5DPGxSnKTe4SA8HAU",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "spotify", "search-or-new-releases"],
+                  "query": [
+                    {
+                      "key": "country",
+                      "value": "KR"
+                    },
+                    {
+                      "key": "favoriteArtistIds",
+                      "value": "4gzpq5DPGxSnKTe4SA8HAU"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error Handling Tests",
+          "item": [
+            {
+              "name": "Invalid Endpoint",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/invalid-endpoint",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "invalid-endpoint"]
+                }
+              }
+            },
+            {
+              "name": "Favorites Without Auth",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/favorites",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "favorites"]
+                }
+              }
+            },
+            {
+              "name": "Invalid Spotify ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/spotify/album?id=invalid-id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "spotify", "album"],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "invalid-id"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+
+

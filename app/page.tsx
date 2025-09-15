@@ -11,6 +11,7 @@ import CyberpunkLogin from "./components/CyberpunkLogin";
 import CyberpunkLanding from "./components/CyberpunkLanding";
 import Toast, { ToastType } from "./components/Toast";
 import FavoriteArtistCarousel from "./components/FavoriteArtistCarousel";
+import SpotifyEmbedPlayer from "./components/SpotifyEmbedPlayer";
 
 type Album = {
   id: string; // 내부 ID (25자)
@@ -33,6 +34,9 @@ type Artist = {
 
 export default function HomePage() {
   const { data: session, status } = useSession();
+  const [selectedAlbumForPlayer, setSelectedAlbumForPlayer] = useState<
+    string | null
+  >(null);
 
   const [albums, setAlbums] = useState<Album[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
@@ -1674,7 +1678,7 @@ export default function HomePage() {
                                 ...album,
                                 spotifyId: album.id,
                               }))}
-                            onAlbumClick={(album) => {
+                            onAlbumClick={async (album) => {
                               console.log("🎵 캐러셀에서 앨범 클릭:", album);
                               const enrichedAlbum = {
                                 ...album,
@@ -1689,6 +1693,13 @@ export default function HomePage() {
                                 },
                               };
                               setSelectedAlbum(enrichedAlbum);
+
+                              // Spotify Embed Player에서 앨범 재생
+                              setSelectedAlbumForPlayer(album.spotifyId);
+                              showToast(
+                                "Spotify에서 앨범을 재생합니다!",
+                                "success"
+                              );
                             }}
                             onDragStart={(e, album) => {
                               e.dataTransfer.setData(
@@ -1787,6 +1798,28 @@ export default function HomePage() {
           artistId={selectedArtistId}
           onClose={() => setSelectedArtistId(null)}
         />
+
+        {/* Spotify Embed Player */}
+        {selectedAlbumForPlayer && (
+          <div className="fixed bottom-4 left-4 right-4 z-50">
+            <SpotifyEmbedPlayer
+              albumId={selectedAlbumForPlayer}
+              className="max-w-4xl mx-auto"
+            />
+            <button
+              onClick={() => setSelectedAlbumForPlayer(null)}
+              className="absolute top-2 right-2 p-2 bg-gray-800/80 hover:bg-gray-700/90 text-white rounded-full transition-colors duration-200"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
 
         {/* 토스트 메시지 */}
         <Toast

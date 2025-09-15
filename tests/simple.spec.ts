@@ -30,3 +30,4 @@ test.describe('기본 페이지 테스트', () => {
     await expect(page.locator('text=Favorite Artists')).toBeVisible();
   });
 });
+

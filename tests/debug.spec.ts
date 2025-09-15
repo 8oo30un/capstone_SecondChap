@@ -45,3 +45,4 @@ test.describe('페이지 구조 디버그 테스트', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 });
+
