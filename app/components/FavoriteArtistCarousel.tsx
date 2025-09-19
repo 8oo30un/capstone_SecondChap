@@ -226,19 +226,6 @@ export default function FavoriteArtistCarousel({
             );
           });
 
-          console.log("🎵 즐겨찾기 체크:", {
-            albumId: album.id,
-            albumSpotifyId: album.spotifyId,
-            albumName: album.name,
-            albumFavorites: albumFavorites,
-            favoriteIds: albumFavorites.map((fav) => ({
-              id: fav.id,
-              spotifyId: fav.spotifyId,
-            })),
-            isFavorite,
-            allFavorites: favorites,
-          });
-
           return isFavorite;
         })() && (
           <div

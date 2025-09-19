@@ -46,14 +46,6 @@ export async function GET(request: NextRequest) {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-    console.log("🔍 Artist-Albums API - 환경 변수 확인:", {
-      hasClientId: !!clientId,
-      hasClientSecret: !!clientSecret,
-      clientIdLength: clientId?.length || 0,
-      clientSecretLength: clientSecret?.length || 0,
-      nodeEnv: process.env.NODE_ENV,
-    });
-
     if (!clientId || !clientSecret) {
       console.error("❌ Spotify 환경 변수 누락");
       return NextResponse.json(
@@ -211,16 +203,6 @@ export async function GET(request: NextRequest) {
     }
 
     const albumsData = await albumsResponse.json();
-
-    console.log(`✅ Successfully fetched albums for artist ${artistId}:`, {
-      totalAlbums: albumsData.items?.length || 0,
-      albums: albumsData.items?.slice(0, 5).map((album: SpotifyAlbum) => ({
-        name: album.name,
-        release_date: album.release_date,
-        album_type: album.album_type,
-        total_tracks: album.total_tracks,
-      })),
-    });
 
     // 앨범 데이터 정리 및 정렬
     const albums: SpotifyAlbum[] = albumsData.items

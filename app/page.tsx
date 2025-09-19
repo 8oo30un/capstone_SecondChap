@@ -154,10 +154,6 @@ export default function HomePage() {
 
           const batchPromises = batch.map(async (artist) => {
             try {
-              console.log(
-                `🔍 앨범 로드 시도: ${artist.name} (ID: ${artist.id}, SpotifyID: ${artist.spotifyId})`
-              );
-
               // 아티스트 이름으로 검색하는 대신, Spotify ID를 사용하여 직접 앨범 가져오기
               const artistAlbumsResponse = await fetch(
                 `/api/spotify/artist-albums?artistId=${artist.spotifyId}`
@@ -191,20 +187,6 @@ export default function HomePage() {
                   )
                   .slice(0, 10); // 최신 10개 앨범 표시
 
-                console.log(
-                  `✅ ${artist.name}의 앨범 ${limitedAlbums.length}개 로드됨:`,
-                  limitedAlbums.map(
-                    (album: {
-                      name: string;
-                      release_date?: string;
-                      album_type?: string;
-                    }) => ({
-                      name: album.name,
-                      release_date: album.release_date,
-                      album_type: album.album_type,
-                    })
-                  )
-                );
                 consecutiveErrors = 0; // 성공 시 에러 카운터 리셋
                 return limitedAlbums;
               } else {
@@ -673,7 +655,7 @@ export default function HomePage() {
 
           if (response.ok) {
             const data = await response.json();
-            console.log("Favorites data:", data);
+
             if (Array.isArray(data)) {
               // 잘못된 형식의 spotifyId를 가진 항목 필터링
               const validData = data.filter((f) => {
@@ -961,10 +943,10 @@ export default function HomePage() {
   if (!session) return <CyberpunkLanding />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white particle-bg">
       <div className="max-w-7xl xl:max-w-7xl 2xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 2xl:px-12">
-        {/* 음표 배경 패턴 */}
-        <div className="music-notes-bg dark:music-notes-bg-dark absolute inset-0 pointer-events-none"></div>
+        {/* 검은색 3D 파티클 배경 */}
+        <div className="particle-bg absolute inset-0 pointer-events-none"></div>
 
         {/* 즐겨찾기 사이드바 */}
         <FavoriteDropZone
@@ -984,9 +966,9 @@ export default function HomePage() {
             isSidebarOpen ? "ml-[320px]" : "ml-0"
           } ${selectedAlbum || selectedArtistId ? "pr-[320px]" : "pr-0"}`}
         >
-          {/* 필터 UI */}
+          {/* 검은색 3D 필터 UI */}
           <div
-            className={`mb-6 p-4 sm:p-6 md:p-8 enhanced-cyberpunk-header text-white rounded-2xl backdrop-blur-sm relative overflow-hidden cyberpunk-scanner`}
+            className={`mb-6 p-4 sm:p-6 md:p-8 glass-card card-3d text-white rounded-2xl relative overflow-hidden`}
           >
             {/* 강화된 사이버펑크 그리드 배경 */}
             <div className="absolute inset-0 enhanced-cyberpunk-grid opacity-15"></div>
@@ -1007,13 +989,12 @@ export default function HomePage() {
               {/* 브랜드 로고 영역 - 고급 사이버펑크 스타일 */}
               <div className="text-center mb-6 md:mb-8">
                 <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 mb-4">
-                  <div className="relative">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl flex items-center justify-center border border-cyan-400/50 shadow-2xl shadow-cyan-400/20">
-                      <span className="text-3xl md:text-4xl text-cyan-400 font-black tracking-wider drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
+                  <div className="relative card-3d-container">
+                    <div className="w-16 h-16 md:w-20 md:h-20 glass-card card-3d rounded-2xl flex items-center justify-center">
+                      <span className="text-3xl md:text-4xl text-cyan-400 font-black tracking-wider drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]">
                         S
                       </span>
                     </div>
-                    <div className="absolute -inset-1 bg-gradient-to-br from-cyan-400/30 to-transparent rounded-2xl blur opacity-60"></div>
                   </div>
                   <div className="flex flex-col items-center md:items-start text-center md:text-left">
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black enhanced-main-title tracking-tight">
@@ -1082,13 +1063,13 @@ export default function HomePage() {
                     )}
                 </div>
                 <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                  {/* 사이버펑크 음악 통계 */}
+                  {/* 검은색 3D 음악 통계 */}
                   <div className="block text-center sm:text-right">
-                    <div className="px-3 py-2 sm:px-4 sm:py-3 enhanced-gradient-dark backdrop-blur-sm rounded-xl">
-                      <div className="text-xs text-slate-300/80 font-medium tracking-wider uppercase mb-1">
+                    <div className="px-3 py-2 sm:px-4 sm:py-3 glass-card card-3d rounded-xl">
+                      <div className="text-xs text-gray-300 font-medium tracking-wider uppercase mb-1">
                         Favorite Artists
                       </div>
-                      <div className="text-lg sm:text-xl font-bold enhanced-neon-cyan">
+                      <div className="text-lg sm:text-xl font-bold text-cyan-400">
                         {favorites.filter((f) => f.type === "artist").length}명
                       </div>
                     </div>
@@ -1105,9 +1086,9 @@ export default function HomePage() {
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
                   🎵 음악 검색
                 </label>
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                  <div className="relative glass-card dark:glass-card-dark p-3 sm:p-4 rounded-xl futuristic-3d neon-glow dark:neon-glow-dark">
+                <div className="relative group card-3d-container">
+                  <div className="absolute inset-0 bg-gradient-to-r from-black via-gray-900 to-black rounded-xl blur-lg opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
+                  <div className="relative glass-card card-3d p-3 sm:p-4 rounded-xl">
                     <div className="relative">
                       <input
                         type="text"
@@ -1122,7 +1103,7 @@ export default function HomePage() {
                             : "";
                           setSearchQuery(v);
                         }}
-                        className="w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-50 focus:shadow-lg focus:shadow-cyan-400/20 transition-all duration-300 pr-10 sm:pr-12"
+                        className="w-full bg-black/80 backdrop-blur-sm border border-gray-700 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-50 focus:shadow-lg focus:shadow-cyan-400/30 transition-all duration-300 pr-10 sm:pr-12"
                       />
                       <div className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                         <svg
@@ -1166,7 +1147,7 @@ export default function HomePage() {
                           setAlbums([]);
                           setLoading(false);
                         }}
-                        className="mt-3 futuristic-btn px-4 py-2 rounded-lg text-white text-sm font-medium transition-all duration-300 hover:scale-105 neon-glow dark:neon-glow-dark"
+                        className="mt-3 glass-card card-3d px-4 py-2 rounded-lg text-white text-sm font-medium transition-all duration-300 hover:scale-105"
                       >
                         검색 초기화
                       </button>
@@ -1216,7 +1197,10 @@ export default function HomePage() {
                             `🎨 아티스트 렌더링: ${artist.name} (${artist.id}) - 키: ${key}`
                           );
                           return (
-                            <div key={key} className="relative">
+                            <div
+                              key={key}
+                              className="relative card-3d-container"
+                            >
                               <div
                                 draggable
                                 onDragStart={(e) => {
@@ -1231,8 +1215,15 @@ export default function HomePage() {
                                     })
                                   );
                                 }}
-                                onClick={() => handleArtistClick(artist.id)}
-                                className="group relative rounded-lg overflow-hidden shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2"
+                                onClick={() => {
+                                  handleArtistClick(artist.id);
+                                  // 아티스트 정보가 열릴 때 상단으로 스크롤
+                                  window.scrollTo({
+                                    top: 0,
+                                    behavior: "smooth",
+                                  });
+                                }}
+                                className="group relative glass-card card-3d rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
                               >
                                 {artist.image ? (
                                   <Image
@@ -1276,7 +1267,10 @@ export default function HomePage() {
                             `🎵 앨범 렌더링: ${album.name} (${album.id}) - 키: ${key}`
                           );
                           return (
-                            <div key={key} className="relative">
+                            <div
+                              key={key}
+                              className="relative card-3d-container"
+                            >
                               <div
                                 draggable
                                 onDragStart={(e) => {
@@ -1301,6 +1295,11 @@ export default function HomePage() {
                                         const albumData = await response.json();
                                         setSelectedAlbum(albumData);
                                         setSelectedArtistId(null);
+                                        // 앨범 정보가 열릴 때 상단으로 스크롤
+                                        window.scrollTo({
+                                          top: 0,
+                                          behavior: "smooth",
+                                        });
                                       } else {
                                         console.error(
                                           "앨범 정보를 가져올 수 없습니다."
@@ -1335,6 +1334,11 @@ export default function HomePage() {
                                       };
                                       setSelectedAlbum(enrichedAlbum);
                                       setSelectedArtistId(null);
+                                      // 앨범 정보가 열릴 때 상단으로 스크롤
+                                      window.scrollTo({
+                                        top: 0,
+                                        behavior: "smooth",
+                                      });
                                     }
                                   } catch (error) {
                                     console.error(
@@ -1343,7 +1347,7 @@ export default function HomePage() {
                                     );
                                   }
                                 }}
-                                className="group relative rounded-lg overflow-hidden shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-2"
+                                className="group relative glass-card card-3d rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
                               >
                                 {album.images[0]?.url ? (
                                   <Image
@@ -1432,7 +1436,7 @@ export default function HomePage() {
                     {favorites.filter((f) => f.type === "artist").length}명
                   </span>
                 </div>
-                <div className="enhanced-gradient-artist backdrop-blur-sm p-4 rounded-xl">
+                <div className="glass-card card-3d p-4 rounded-xl">
                   {/* 아티스트 그리드 - 반응형 그리드 */}
                   <div
                     id="favorite-artists-container"
@@ -1448,7 +1452,7 @@ export default function HomePage() {
                             key={`favorite-${fav.id}-${
                               fav.spotifyId
                             }-${crypto.randomUUID()}`}
-                            className="relative"
+                            className="relative card-3d-container"
                           >
                             <div
                               draggable
@@ -1479,8 +1483,10 @@ export default function HomePage() {
                                   }
                                 );
                                 handleArtistClick(fav.id);
+                                // 아티스트 정보가 열릴 때 상단으로 스크롤
+                                window.scrollTo({ top: 0, behavior: "smooth" });
                               }}
-                              className="group relative rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400/50 w-full enhanced-favorite-card transition-all duration-300 hover:scale-105 hover:-translate-y-2"
+                              className="group relative glass-card card-3d rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400/50 w-full transition-all duration-300"
                             >
                               <div className="enhanced-artist-image-container w-full h-20 sm:h-24">
                                 {artistImage ? (
@@ -1519,7 +1525,7 @@ export default function HomePage() {
                     {favorites.filter((f) => f.type === "album").length}개 앨범
                   </span>
                 </div>
-                <div className="w-full enhanced-gradient-album backdrop-blur-sm p-4 rounded-xl">
+                <div className="w-full glass-card card-3d p-4 rounded-xl">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
                     {favorites
                       .filter((f) => f.type === "album")
@@ -1551,6 +1557,11 @@ export default function HomePage() {
                                   const albumData = await response.json();
                                   setSelectedAlbum(albumData);
                                   setSelectedArtistId(null);
+                                  // 앨범 정보가 열릴 때 상단으로 스크롤
+                                  window.scrollTo({
+                                    top: 0,
+                                    behavior: "smooth",
+                                  });
                                 } else {
                                   console.error(
                                     "앨범 정보를 가져올 수 없습니다."
@@ -1587,12 +1598,14 @@ export default function HomePage() {
                                 };
                                 setSelectedAlbum(enrichedAlbum);
                                 setSelectedArtistId(null);
+                                // 앨범 정보가 열릴 때 상단으로 스크롤
+                                window.scrollTo({ top: 0, behavior: "smooth" });
                               }
                             } catch (error) {
                               console.error("즐겨찾기 앨범 클릭 에러:", error);
                             }
                           }}
-                          className="enhanced-favorite-card backdrop-blur-sm rounded-lg p-3 flex flex-col cursor-pointer relative transition-all duration-300 hover:scale-105 hover:-translate-y-2"
+                          className="glass-card card-3d rounded-lg p-3 flex flex-col cursor-pointer relative transition-all duration-300"
                         >
                           {/* 즐겨찾기 표시 */}
 
@@ -1609,7 +1622,7 @@ export default function HomePage() {
                               <div className="w-full h-full bg-gray-200 dark:bg-gray-700" />
                             )}
                           </div>
-                          <h2 className="mt-3 text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                          <h2 className="mt-3 text-sm font-semibold text-white truncate">
                             {fav.name}
                           </h2>
                         </div>
@@ -1633,9 +1646,9 @@ export default function HomePage() {
                   favorites.filter((f) => f.type === "artist").length > 0 ? (
                     <>
                       <div className="px-6 pb-6">
-                        <div className="enhanced-gradient-album p-6 rounded-2xl mb-6">
+                        <div className="glass-card card-3d p-6 rounded-2xl mb-6">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold enhanced-favorite-title">
+                            <h3 className="text-lg font-bold text-cyan-400">
                               🎵 즐겨찾기 아티스트 신곡
                             </h3>
                             <span className="text-sm text-slate-400">
@@ -1673,13 +1686,15 @@ export default function HomePage() {
 
                               // 앨범 정보 패널이 이미 열려있으면 바로 전환, 아니면 새로 열기
                               setSelectedAlbum(enrichedAlbum);
+                              // 앨범 정보가 열릴 때 상단으로 스크롤
+                              window.scrollTo({ top: 0, behavior: "smooth" });
 
-                              // 커스텀 플레이어에서 앨범 재생
-                              setSelectedAlbumForPlayer(album.spotifyId);
-                              showToast(
-                                "음악 플레이어에서 앨범을 재생합니다!",
-                                "success"
-                              );
+                              // 캐러셀 앨범 클릭 시에는 바로 재생하지 않음 (재생 버튼만 눌렀을 때 재생)
+                              // setSelectedAlbumForPlayer(album.spotifyId);
+                              // showToast(
+                              //   "음악 플레이어에서 앨범을 재생합니다!",
+                              //   "success"
+                              // );
                             }}
                             onDragStart={(e, album) => {
                               e.dataTransfer.setData(
@@ -1774,6 +1789,7 @@ export default function HomePage() {
           }
           onClose={() => setSelectedAlbum(null)}
           onPlayAlbum={(albumId) => {
+            console.log("🎵 앨범 재생 버튼 클릭:", albumId);
             setSelectedAlbumForPlayer(albumId);
             showToast("음악 플레이어에서 앨범을 재생합니다!", "success");
           }}
@@ -1784,6 +1800,7 @@ export default function HomePage() {
           artistId={selectedArtistId}
           onClose={() => setSelectedArtistId(null)}
           onPlayAlbum={async (albumId) => {
+            console.log("🎵 아티스트 패널에서 앨범 재생 버튼 클릭:", albumId);
             try {
               // 앨범 정보를 가져와서 selectedAlbum 상태에 설정
               const response = await fetch(`/api/spotify/album?id=${albumId}`);
