@@ -208,7 +208,7 @@ export default function CustomMusicPlayer({
 
   return (
     <div
-      className={`bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 backdrop-blur-md border border-green-500/20 rounded-2xl shadow-2xl shadow-green-500/10 transition-all duration-300 ${
+      className={`glass-card card-3d backdrop-blur-md border border-cyan-400/20 rounded-2xl shadow-2xl shadow-cyan-400/10 transition-all duration-300 mx-4 my-3 ${
         isExpanded ? "h-96" : "h-20"
       } ${className}`}
     >
@@ -229,9 +229,9 @@ export default function CustomMusicPlayer({
                 />
               </div>
             ) : (
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 glass-card card-3d bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <svg
-                  className="w-6 h-6 text-white"
+                  className="w-6 h-6 text-white drop-shadow-lg"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -246,13 +246,14 @@ export default function CustomMusicPlayer({
                 {equalizerBars.map((height, index) => (
                   <div
                     key={index}
-                    className="w-0.5 bg-gradient-to-t from-green-400 via-emerald-300 to-green-500 rounded-full transition-all duration-1000 ease-out"
+                    className="w-0.5 bg-gradient-to-t from-cyan-400 via-blue-300 to-cyan-500 rounded-full transition-all duration-1000 ease-out shadow-lg"
                     style={{
                       height: `${Math.max(2, height * 0.3)}px`,
                       animationDelay: `${index * 150}ms`,
                       transform: `scaleY(${
                         1 + Math.sin(Date.now() * 0.002 + index) * 0.1
                       })`,
+                      boxShadow: `0 0 8px rgba(6, 182, 212, 0.6)`,
                     }}
                   />
                 ))}
@@ -279,7 +280,7 @@ export default function CustomMusicPlayer({
           {/* 이전 트랙 */}
           <button
             onClick={() => changeTrack(Math.max(1, currentTrack - 1))}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-gray-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 glass-card card-3d rounded-lg"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
@@ -289,10 +290,10 @@ export default function CustomMusicPlayer({
           {/* 재생/일시정지 */}
           <button
             onClick={togglePlay}
-            className={`p-3 rounded-full text-white transition-all duration-300 hover:scale-110 ${
+            className={`p-3 rounded-full text-white transition-all duration-300 hover:scale-110 glass-card card-3d ${
               isPlaying
-                ? "bg-gradient-to-r from-green-500 to-emerald-400 shadow-lg shadow-green-500/30 hover:shadow-green-500/50"
-                : "bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/20 hover:shadow-green-500/40"
+                ? "bg-gradient-to-r from-cyan-500 to-blue-400 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
+                : "bg-cyan-500 hover:bg-cyan-600 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40"
             }`}
           >
             {isPlaying ? (
@@ -313,7 +314,7 @@ export default function CustomMusicPlayer({
           {/* 다음 트랙 */}
           <button
             onClick={() => changeTrack(Math.min(totalTracks, currentTrack + 1))}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-gray-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 glass-card card-3d rounded-lg"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
@@ -323,7 +324,7 @@ export default function CustomMusicPlayer({
           {/* 확장/축소 */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-gray-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 glass-card card-3d rounded-lg"
           >
             <svg
               className={`w-5 h-5 transition-transform duration-200 ${
@@ -340,7 +341,7 @@ export default function CustomMusicPlayer({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+              className="p-2 text-gray-400 hover:text-red-400 transition-all duration-300 hover:scale-110 glass-card card-3d rounded-lg"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
@@ -355,17 +356,18 @@ export default function CustomMusicPlayer({
         <div className="px-4 pb-4 space-y-4">
           {/* AI 이퀄라이저 */}
           {isPlaying && (
-            <div className="flex items-end justify-center space-x-1 h-16 bg-gray-800/50 rounded-lg p-4">
+            <div className="flex items-end justify-center space-x-1 h-16 glass-card card-3d rounded-lg p-4">
               {equalizerBars.map((height, index) => (
                 <div
                   key={index}
-                  className="w-1 bg-gradient-to-t from-green-400 via-emerald-300 to-green-500 rounded-full transition-all duration-1200 ease-out"
+                  className="w-1 bg-gradient-to-t from-cyan-400 via-blue-300 to-cyan-500 rounded-full transition-all duration-1200 ease-out shadow-lg"
                   style={{
                     height: `${Math.max(4, height * 0.6)}px`,
                     animationDelay: `${index * 120}ms`,
                     transform: `scaleY(${
                       1 + Math.sin(Date.now() * 0.0015 + index) * 0.15
                     })`,
+                    boxShadow: `0 0 12px rgba(6, 182, 212, 0.6)`,
                   }}
                 />
               ))}
@@ -377,17 +379,20 @@ export default function CustomMusicPlayer({
             <div
               ref={progressRef}
               onClick={handleProgressClick}
-              className="w-full h-2 bg-gray-700 rounded-full cursor-pointer hover:h-3 transition-all duration-200 relative overflow-hidden"
+              className="w-full h-2 bg-black/60 rounded-full cursor-pointer hover:h-3 transition-all duration-200 relative overflow-hidden glass-card"
             >
               <div
-                className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full relative transition-all duration-300"
-                style={{ width: `${progressPercentage}%` }}
+                className="h-full bg-gradient-to-r from-cyan-500 to-blue-400 rounded-full relative transition-all duration-300 shadow-lg"
+                style={{
+                  width: `${progressPercentage}%`,
+                  boxShadow: `0 0 10px rgba(6, 182, 212, 0.6)`,
+                }}
               >
                 {/* 재생 중일 때 부드러운 글로우 효과 */}
                 {isPlaying && (
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-green-400/50 to-emerald-300/50 animate-pulse"></div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/50 to-blue-300/50 animate-pulse"></div>
                 )}
-                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200"></div>
+                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-200 border border-cyan-400/30"></div>
               </div>
             </div>
 

@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  --background: linear-gradient(135deg, #000000 0%, #111827 50%, #000000 100%);
   --foreground: #ffffff;
   --accent-primary: #00d4ff;
-  --accent-secondary: #8b5cf6;
-  --accent-tertiary: #f59e0b;
+  --accent-secondary: #06b6d4;
+  --accent-tertiary: #0891b2;
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
-  --card-bg: rgba(15, 15, 35, 0.8);
+  --card-bg: rgba(0, 0, 0, 0.8);
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
   --text-accent: #00d4ff;
@@ -25,22 +25,49 @@
   :root {
     --background: linear-gradient(
       135deg,
-      #0f0f23 0%,
-      #1a1a2e 50%,
-      #16213e 100%
+      #000000 0%,
+      #111827 50%,
+      #000000 100%
     );
     --foreground: #ffffff;
   }
 }
 
+html {
+  position: relative;
+  background: linear-gradient(135deg, #000000 0%, #111827 50%, #000000 100%);
+}
+
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, #000000 0%, #111827 50%, #000000 100%);
   color: var(--foreground);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
-  perspective: 1000px;
+  /* perspective: 1000px; -- 제거: fixed positioning을 방해함 */
+  position: relative;
+}
+
+/* 뮤직바가 있을 때 body 패딩 */
+body.has-music-player {
+  padding-bottom: 120px !important;
+}
+
+/* 뮤직바가 항상 최상위에 표시되도록 */
+.music-player-fixed {
+  z-index: 2147483647 !important; /* 최대 z-index 값 */
+}
+
+/* 모든 부모 요소가 뮤직바에 영향을 주지 않도록 */
+html,
+body {
+  position: relative !important;
+}
+
+/* 뮤직바만 3D 효과 유지 */
+.music-player-fixed {
+  transform-style: preserve-3d !important;
 }
 
 /* 3D 카드 컨테이너 */
@@ -49,29 +76,29 @@ body {
   transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* 3D 카드 기본 스타일 - 검은색 톤 */
+/* 3D 카드 기본 스타일 - 통일된 검은색 그라데이션 */
 .card-3d {
   transform-style: preserve-3d;
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   will-change: transform;
-  background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+  background: linear-gradient(145deg, #000000, #111827, #000000);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8),
     inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* 3D 카드 호버 효과 - 검은색 톤 */
+/* 3D 카드 호버 효과 - 통일된 검은색 그라데이션 */
 .card-3d:hover {
   transform: translateY(-12px) rotateX(8deg) rotateY(8deg) scale(1.05);
-  background: linear-gradient(145deg, #222222, #111111);
+  background: linear-gradient(145deg, #111111, #1f2937, #111111);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9), 0 0 40px rgba(6, 182, 212, 0.3),
     inset 0 2px 0 rgba(255, 255, 255, 0.1), inset 0 -2px 0 rgba(0, 0, 0, 0.8);
 }
 
-/* 3D 카드 활성 상태 */
+/* 3D 카드 활성 상태 - 통일된 검은색 그라데이션 */
 .card-3d:active {
   transform: translateY(-6px) rotateX(4deg) rotateY(4deg) scale(1.02);
-  background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+  background: linear-gradient(145deg, #000000, #111827, #000000);
 }
 
 /* 스크롤 텔링 애니메이션 */
@@ -213,12 +240,13 @@ body {
   transition-delay: 0.4s;
 }
 
-/* 검은색 3D 글래스모피즘 카드 */
+/* 검은색 3D 글래스모피즘 카드 - 통일된 그라데이션 */
 .glass-card {
   background: linear-gradient(
     145deg,
-    rgba(26, 26, 26, 0.95),
-    rgba(13, 13, 13, 0.95)
+    rgba(0, 0, 0, 0.95),
+    rgba(17, 24, 39, 0.95),
+    rgba(0, 0, 0, 0.95)
   );
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
@@ -248,11 +276,12 @@ body {
   pointer-events: none;
 }
 
-/* 검은색 3D 글래스모피즘 카드 호버 효과 */
+/* 검은색 3D 글래스모피즘 카드 호버 효과 - 통일된 그라데이션 */
 .glass-card:hover {
   background: linear-gradient(
     145deg,
-    rgba(34, 34, 34, 0.98),
+    rgba(17, 17, 17, 0.98),
+    rgba(31, 41, 55, 0.98),
     rgba(17, 17, 17, 0.98)
   );
   border-color: rgba(6, 182, 212, 0.2);
@@ -463,6 +492,43 @@ body {
   transform-style: preserve-3d;
 }
 
+/* 뮤직바 고정 스타일 - 스크롤과 완전히 독립적 */
+.music-player-fixed {
+  /* 핵심 고정 속성 */
+  position: fixed !important;
+  bottom: 0px !important;
+  left: 0px !important;
+  right: 0px !important;
+  width: 100vw !important;
+  height: auto !important;
+
+  /* 최상위 레이어 */
+  z-index: 2147483647 !important;
+
+  /* 모든 부모 영향 차단 */
+  transform: none !important;
+  filter: none !important;
+  clip: none !important;
+  clip-path: none !important;
+
+  /* 레이아웃 리셋 */
+  margin: 0px !important;
+  padding: 0px !important;
+  box-sizing: border-box !important;
+
+  /* 표시 강제 */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+
+  /* 위치 고정 */
+  top: auto !important;
+  float: none !important;
+  clear: both !important;
+  position: fixed !important;
+}
+
 .particle-bg::before {
   content: "";
   position: absolute;
@@ -478,7 +544,7 @@ body {
     radial-gradient(2px 2px at 40px 70px, rgba(0, 0, 0, 0.6), transparent),
     radial-gradient(1px 1px at 90px 40px, rgba(6, 182, 212, 0.2), transparent),
     radial-gradient(2px 2px at 130px 80px, rgba(0, 0, 0, 0.8), transparent),
-    radial-gradient(1px 1px at 160px 20px, rgba(139, 92, 246, 0.3), transparent);
+    radial-gradient(1px 1px at 160px 20px, rgba(6, 182, 212, 0.2), transparent);
   background-repeat: repeat;
   background-size: 250px 250px;
   animation: particleFloat3D 25s linear infinite;
