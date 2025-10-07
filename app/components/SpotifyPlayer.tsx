@@ -9,7 +9,8 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { useSession } from "next-auth/react";
-import { SpotifyPlayerState, SpotifyTrack } from "@/types/spotify-playback";
+import { SpotifyPlayerState } from "@/types/spotify-playback";
+import Image from "next/image";
 import { playAlbum, playTrack } from "@/lib/spotify";
 
 interface SpotifyPlayerProps {
@@ -37,7 +38,7 @@ const SpotifyPlayer = forwardRef<SpotifyPlayerRef, SpotifyPlayerProps>(
       error: null,
     });
 
-    const playerRef = useRef<SpotifyPlayer | null>(null);
+    const playerRef = useRef<Spotify.Player | null>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Spotify SDK 로드
@@ -258,7 +259,7 @@ const SpotifyPlayer = forwardRef<SpotifyPlayerRef, SpotifyPlayerProps>(
         togglePlay,
         getCurrentState: () => playerState,
       }),
-      [playerState.deviceId, getSpotifyToken, togglePlay, playerState]
+      [getSpotifyToken, togglePlay, playerState]
     );
 
     // 컴포넌트 언마운트 시 정리
@@ -322,9 +323,11 @@ const SpotifyPlayer = forwardRef<SpotifyPlayerRef, SpotifyPlayerProps>(
             {/* 앨범 아트 */}
             <div className="flex-shrink-0">
               {playerState.currentTrack.album.images[0] ? (
-                <img
+                <Image
                   src={playerState.currentTrack.album.images[0].url}
                   alt={playerState.currentTrack.album.name}
+                  width={64}
+                  height={64}
                   className="w-16 h-16 rounded-lg shadow-lg"
                 />
               ) : (

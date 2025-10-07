@@ -51,18 +51,28 @@ export async function GET(req: NextRequest) {
     const tracksData = await tracksResponse.json();
 
     // 트랙 정보를 필요한 형태로 변환
-    const tracks = tracksData.items.map((track: any) => ({
-      id: track.id,
-      name: track.name,
-      duration: Math.floor(track.duration_ms / 1000), // 밀리초를 초로 변환
-      track_number: track.track_number,
-      artists: track.artists.map((artist: any) => ({
-        name: artist.name,
-        id: artist.id,
-      })),
-      preview_url: track.preview_url,
-      external_urls: track.external_urls,
-    }));
+    const tracks = tracksData.items.map(
+      (track: {
+        id: string;
+        name: string;
+        duration_ms: number;
+        track_number: number;
+        artists: Array<{ name: string; id: string }>;
+        preview_url: string | null;
+        external_urls: { spotify: string };
+      }) => ({
+        id: track.id,
+        name: track.name,
+        duration: Math.floor(track.duration_ms / 1000), // 밀리초를 초로 변환
+        track_number: track.track_number,
+        artists: track.artists.map((artist: { name: string; id: string }) => ({
+          name: artist.name,
+          id: artist.id,
+        })),
+        preview_url: track.preview_url,
+        external_urls: track.external_urls,
+      })
+    );
 
     return NextResponse.json({
       success: true,

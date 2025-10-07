@@ -58,7 +58,7 @@ export interface SpotifyPlaybackState {
 }
 
 export interface SpotifyTrack {
-  id: string;
+  id: string | null;
   uri: string;
   name: string;
   duration_ms: number;
@@ -67,8 +67,8 @@ export interface SpotifyTrack {
     name: string;
     images: Array<{
       url: string;
-      height: number;
-      width: number;
+      height?: number | null;
+      width?: number | null;
     }>;
   };
   artists: Array<{

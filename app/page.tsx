@@ -1007,10 +1007,15 @@ export default function HomePage() {
                 <div className="text-center mb-6 md:mb-8">
                   <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 mb-4">
                     <div className="relative card-3d-container">
-                      <div className="w-16 h-16 md:w-20 md:h-20 glass-card card-3d rounded-2xl flex items-center justify-center">
-                        <span className="text-3xl md:text-4xl text-cyan-400 font-black tracking-wider drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]">
-                          S
-                        </span>
+                      <div className="w-16 h-16 md:w-20 md:h-20 glass-card card-3d rounded-2xl flex items-center justify-center p-2">
+                        <Image
+                          src="/icon-192x192.svg"
+                          alt="SecondChap Logo"
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(139,92,246,0.8)]"
+                          style={{ imageRendering: "auto" }}
+                        />
                       </div>
                     </div>
                     <div className="flex flex-col items-center md:items-start text-center md:text-left">

@@ -1,6 +1,44 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
+
+// 타입 정의
+interface AlbumImage {
+  url: string;
+  height: number;
+  width: number;
+}
+
+interface Artist {
+  name: string;
+  id: string;
+}
+
+interface Track {
+  id: string;
+  name: string;
+  duration_ms: number;
+  artists: Artist[];
+  external_urls: {
+    spotify: string;
+  };
+}
+
+interface AlbumInfo {
+  id: string;
+  name: string;
+  images: AlbumImage[];
+  artists: Artist[];
+  release_date: string;
+  total_tracks: number;
+  tracks: {
+    items: Track[];
+  };
+  external_urls: {
+    spotify: string;
+  };
+}
 
 interface CustomSpotifyPlayerProps {
   albumId: string;
@@ -11,8 +49,8 @@ export default function CustomSpotifyPlayer({
   albumId,
   className = "",
 }: CustomSpotifyPlayerProps) {
-  const [albumInfo, setAlbumInfo] = useState<any>(null);
-  const [tracks, setTracks] = useState<any[]>([]);
+  const [albumInfo, setAlbumInfo] = useState<AlbumInfo | null>(null);
+  const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 앨범 정보 가져오기
@@ -73,16 +111,20 @@ export default function CustomSpotifyPlayer({
       <div className="p-6 border-b border-gray-700/50">
         <div className="flex items-center gap-4">
           {albumInfo.images?.[0] && (
-            <img
+            <Image
               src={albumInfo.images[0].url}
               alt={albumInfo.name}
+              width={64}
+              height={64}
               className="w-16 h-16 rounded-lg shadow-lg"
             />
           )}
           <div className="flex-1">
             <h3 className="text-white font-bold text-xl">{albumInfo.name}</h3>
             <p className="text-green-400 text-sm">
-              {albumInfo.artists?.map((artist: any) => artist.name).join(", ")}
+              {albumInfo.artists
+                ?.map((artist: Artist) => artist.name)
+                .join(", ")}
             </p>
             <p className="text-gray-400 text-xs mt-1">
               {albumInfo.release_date} • {albumInfo.total_tracks}곡
@@ -108,7 +150,7 @@ export default function CustomSpotifyPlayer({
             <div className="flex-1 min-w-0">
               <p className="text-white font-medium truncate">{track.name}</p>
               <p className="text-gray-400 text-sm truncate">
-                {track.artists?.map((artist: any) => artist.name).join(", ")}
+                {track.artists?.map((artist: Artist) => artist.name).join(", ")}
               </p>
             </div>
             <div className="text-gray-400 text-sm">

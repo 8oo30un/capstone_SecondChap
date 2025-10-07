@@ -47,9 +47,12 @@ export const metadata: Metadata = {
     icon: [
       { url: "/favicon-16x16.svg", sizes: "16x16", type: "image/svg+xml" },
       { url: "/favicon-32x32.svg", sizes: "32x32", type: "image/svg+xml" },
+      { url: "/icon-192x192.svg", sizes: "192x192", type: "image/svg+xml" },
+      { url: "/icon-512x512.svg", sizes: "512x512", type: "image/svg+xml" },
     ],
     apple: [
-      { url: "/icon-192x192.svg", sizes: "192x192", type: "image/svg+xml" },
+      { url: "/apple-touch-icon.svg", sizes: "180x180", type: "image/svg+xml" },
+      { url: "/icon-512x512.svg", sizes: "512x512", type: "image/svg+xml" },
     ],
     shortcut: "/favicon-32x32.svg",
   },
@@ -65,9 +68,10 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <link rel="icon" href="/favicon-32x32.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icon-192x192.svg" />
-        <meta name="theme-color" content="#0f172a" />
-        <meta name="msapplication-TileColor" content="#0f172a" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.svg" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icon-512x512.svg" />
+        <meta name="theme-color" content="#8B5CF6" />
+        <meta name="msapplication-TileColor" content="#8B5CF6" />
       </head>
       <body>
         <Providers>{children}</Providers>
