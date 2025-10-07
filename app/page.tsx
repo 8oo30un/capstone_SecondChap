@@ -1009,7 +1009,7 @@ export default function HomePage() {
                     <div className="relative card-3d-container">
                       <div className="w-16 h-16 md:w-20 md:h-20 glass-card card-3d rounded-2xl flex items-center justify-center p-2">
                         <Image
-                          src="/icon-192x192.svg"
+                          src="/icon.svg"
                           alt="SecondChap Logo"
                           width={80}
                           height={80}
